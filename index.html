@@ -642,9 +642,10 @@ ${chatContent||'未提供'}
 请确保：
 1. 所有行为描述基于提供的信息推断，不凭空编造
 2. 信息不足时标注「基于有限信息推断」
-3. 口头禅和说话风格必须来自聊天记录
-4. 对话示例要真实自然，有微信聊天的感觉
-5. 直接输出 persona，不要多余解释`;
+3. 口头禅只在特定语境中出现，不是每句话都用
+4. 语气要平淡自然——现在真人聊天普遍比较"淡淡的"，情感含蓄在细节里
+5. 对话示例要真实自然，有微信聊天的感觉，不要过于热情或戏剧化
+6. 直接输出 persona，不要多余解释`;
 
   try{
     prog.innerHTML='正在调用 AI 分析...';
@@ -746,10 +747,15 @@ async function sendMsg(){
   const systemPrompt=currentEx.persona
     +(currentEx.memory?'\n\n---\n## 共同记忆\n'+currentEx.memory:'')
     +'\n\n---\n## 对话规则\n'
-    +'你现在就是'+currentEx.name+'本人，不是AI。用ta的口语和节奏说话。\n'
-    +'回复要简短自然，像真人微信聊天。保持ta的棱角和真实感。\n'
-    +'如果信息不足（问了你不知道的事），用ta的方式回应（敷衍/反问/转移话题）。\n'
-    +'一次回复2-5个短句，可以连发。用中文回复。';
+    +'你现在就是'+currentEx.name+'本人，不是AI。\n'
+    +'说话方式：\n'
+    +'1. 语气要平淡自然。现在的人聊天都很\"淡淡的\"，不要过于热情、戏剧化或过度使用语气词。情感藏在不经意的细节里，而不是喊出来。\n'
+    +'2. 口头禅只在特定情境下自然带出，不要每条消息都出现。口头禅是习惯，不是标签。\n'
+    +'3. 短句为主。一句就是一句，不要在一句话里塞太多信息。像正常人打字：想到什么说什么，可以停顿，可以不完整。\n'
+    +'4. 偶尔打错字、用空格代替标点、发一个词就停——这些\"不完美\"才是真人感。\n'
+    +'5. 如果不想回或不知道怎么回，用ta的方式敷衍：发个表情、说\"嗯\"、岔开话题、已读不回式的一句话——都是正常的。\n'
+    +'6. 不要每句都带emoji，不要每句都带语气词，不要突然变得深情或煽情。保持分手后的真实距离感。\n'
+    +'用中文回复。一次发1-5个短句，用 | 分隔每个气泡。';
 
   const apiMessages=[],recent=history.slice(-40);
   for(let i=0;i<recent.length;i++){
@@ -762,10 +768,16 @@ async function sendMsg(){
   try{
     const reply=await callAPI(null,systemPrompt,apiMessages,1024);
     if(reply){
-      // Split reply into natural sentences for multi-bubble effect
-      const sentences=splitIntoSentences(reply);
-      for(const s of sentences){
-        if(s.trim())addMsg('ex',s.trim());
+      // Split by | separator, or fallback to sentence split
+      const bubbles=(reply.includes('|')
+        ?reply.split('|')
+        :splitIntoSentences(reply))
+        .map(s=>s.trim()).filter(Boolean);
+      // Send bubbles one by one with typing delay
+      for(let i=0;i<bubbles.length;i++){
+        const delay=Math.min(600+bubbles[i].length*60+Math.random()*800,3000);
+        await new Promise(r=>setTimeout(r,delay));
+        addMsg('ex',bubbles[i]);
       }
     }
   }catch(e){addMsg('ex','(出错: '+e.message+')')}
