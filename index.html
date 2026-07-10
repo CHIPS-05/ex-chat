@@ -315,6 +315,7 @@ async function saveExes(exes){for(const e of exes)await saveEx(e)}
 async function updateExChat(slug,chatHistory){try{const exes=await loadExes();const i=exes.findIndex(e=>e.slug===slug);if(i>=0){exes[i].chatHistory=chatHistory;await saveEx(exes[i])}}catch(e){console.error(e)}}
 
 const DEMO_MODE='__demo__';
+const CONFIG_KEY='exchat_v2_config';
 let currentEx=null;
 let history=[];
 let isLoading=false;
