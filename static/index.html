@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>前任 AI 聊天</title>
+<style>
+  :root {
+    --bg: #EDEDED;
+    --topbar: #2E2E2E;
+    --bubble-self: #95EC69;
+    --bubble-other: #FFFFFF;
+    --text-primary: #1A1A1A;
+    --text-secondary: #888888;
+    --border: #E0E0E0;
+    --danger: #E04840;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* ── Top Bar ─────────────────────── */
+  .topbar {
+    background: var(--topbar);
+    color: #fff;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+    padding-top: max(12px, env(safe-area-inset-top));
+  }
+
+  .topbar .back {
+    font-size: 20px;
+    cursor: pointer;
+    opacity: 0.8;
+    min-width: 28px;
+  }
+
+  .topbar .info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .topbar .name {
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .topbar .detail {
+    font-size: 12px;
+    opacity: 0.6;
+    margin-top: 1px;
+  }
+
+  .topbar .switch-btn {
+    font-size: 12px;
+    background: rgba(255,255,255,0.15);
+    border: none;
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  /* ── Messages ────────────────────── */
+  .messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+
+  .msg-row {
+    display: flex;
+    flex-direction: column;
+    max-width: 75%;
+    animation: fadeUp 0.25s ease-out;
+  }
+
+  .msg-row.self { align-self: flex-end; align-items: flex-end; }
+  .msg-row.other { align-self: flex-start; align-items: flex-start; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .bubble {
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 15px;
+    line-height: 1.55;
+    word-break: break-word;
+    position: relative;
+    white-space: pre-wrap;
+  }
+
+  .self .bubble {
+    background: var(--bubble-self);
+    color: #000;
+    border-top-right-radius: 2px;
+  }
+
+  .other .bubble {
+    background: var(--bubble-other);
+    color: var(--text-primary);
+    border-top-left-radius: 2px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+  }
+
+  .msg-row .time {
+    font-size: 11px;
+    color: #B0B0B0;
+    margin-top: 4px;
+    padding: 0 4px;
+  }
+
+  .typing-indicator {
+    align-self: flex-start;
+    padding: 10px 14px;
+    background: #fff;
+    border-radius: 8px;
+    border-top-left-radius: 2px;
+    display: none;
+    gap: 4px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+  }
+
+  .typing-indicator.active { display: flex; }
+
+  .typing-indicator span {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #BBB;
+    animation: bounce 1.2s infinite;
+  }
+
+  .typing-indicator span:nth-child(2) { animation-delay: 0.15s; }
+  .typing-indicator span:nth-child(3) { animation-delay: 0.3s; }
+
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-6px); }
+  }
+
+  /* ── Empty State ─────────────────── */
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    color: #999;
+    gap: 12px;
+  }
+
+  .empty-state .icon { font-size: 48px; }
+
+  .empty-state .text { font-size: 14px; text-align: center; line-height: 1.6; }
+
+  .empty-state .hint {
+    font-size: 12px;
+    color: #BBB;
+    max-width: 240px;
+    text-align: center;
+  }
+
+  /* ── Input Area ──────────────────── */
+  .input-area {
+    background: #F7F7F7;
+    padding: 10px 12px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    flex-shrink: 0;
+    border-top: 1px solid var(--border);
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+  }
+
+  .input-area input {
+    flex: 1;
+    border: 1px solid #DDD;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 15px;
+    outline: none;
+    background: #fff;
+    min-width: 0;
+    transition: border-color 0.15s;
+  }
+
+  .input-area input:focus {
+    border-color: #07C160;
+  }
+
+  .input-area button {
+    background: #07C160;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+
+  .input-area button:active { background: #06AD56; }
+  .input-area button:disabled { background: #BEBEBE; cursor: not-allowed; }
+
+  /* ── Modal / Picker ──────────────── */
+  .overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 100;
+  }
+
+  .overlay.show { display: flex; }
+
+  .sheet {
+    background: #fff;
+    width: 100%;
+    max-width: 500px;
+    border-radius: 16px 16px 0 0;
+    padding: 20px 0 0 0;
+    max-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    animation: slideUp 0.25s ease-out;
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+  }
+
+  .sheet h3 {
+    text-align: center;
+    font-size: 16px;
+    margin-bottom: 8px;
+    padding: 0 20px;
+  }
+
+  .sheet .subtitle {
+    text-align: center;
+    font-size: 12px;
+    color: #999;
+    margin-bottom: 12px;
+    padding: 0 20px;
+  }
+
+  .sheet .list {
+    overflow-y: auto;
+    flex: 1;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .sheet .ex-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    cursor: pointer;
+    border-bottom: 1px solid #F0F0F0;
+    transition: background 0.1s;
+  }
+
+  .sheet .ex-item:active { background: #F5F5F5; }
+
+  .sheet .ex-item .avatar {
+    width: 42px; height: 42px;
+    border-radius: 6px;
+    background: #EEE;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .sheet .ex-item .ex-info { flex: 1; min-width: 0; }
+  .sheet .ex-item .ex-name { font-size: 15px; font-weight: 500; }
+  .sheet .ex-item .ex-desc { font-size: 12px; color: #999; margin-top: 2px; }
+  .sheet .ex-item .check { color: #07C160; font-size: 18px; }
+
+  .sheet .cancel {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    text-align: center;
+    border: none;
+    background: #F5F5F5;
+    font-size: 15px;
+    color: #666;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+
+  /* ── Error Toast ─────────────────── */
+  .toast {
+    position: fixed;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #E04840;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    z-index: 200;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    max-width: 90vw;
+    text-align: center;
+  }
+
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="topbar">
+  <div class="info">
+    <div class="name" id="exName">选择前任</div>
+    <div class="detail" id="exDetail"></div>
+  </div>
+  <button class="switch-btn" onclick="showPicker()">切换</button>
+</div>
+
+<!-- Messages -->
+<div class="messages" id="messages">
+  <div class="empty-state" id="emptyState">
+    <div class="icon">💬</div>
+    <div class="text">选择一个前任开始聊天</div>
+    <div class="hint">前提：已在 Claude Code 中用 /create-ex 创建过前任</div>
+  </div>
+  <div class="typing-indicator" id="typing">
+    <span></span><span></span><span></span>
+  </div>
+</div>
+
+<!-- Input -->
+<div class="input-area">
+  <input type="text" id="msgInput" placeholder="输入消息..." maxlength="1000" autocomplete="off">
+  <button id="sendBtn" onclick="send()">发送</button>
+</div>
+
+<!-- Ex Picker Modal -->
+<div class="overlay" id="pickerOverlay" onclick="hidePicker(event)">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <h3>选择前任</h3>
+    <div class="subtitle" id="pickerSubtitle"></div>
+    <div class="list" id="exList"></div>
+    <button class="cancel" onclick="hidePicker()">取消</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── State ────────────────────────────────
+let currentEx = null;        // { slug, name, profile }
+let history = [];            // [{ role:'self'|'ex', content }]
+let isLoading = false;
+
+const $messages = document.getElementById('messages');
+const $emptyState = document.getElementById('emptyState');
+const $typing = document.getElementById('typing');
+const $msgInput = document.getElementById('msgInput');
+const $sendBtn = document.getElementById('sendBtn');
+const $exName = document.getElementById('exName');
+const $exDetail = document.getElementById('exDetail');
+
+// ── Init ─────────────────────────────────
+document.addEventListener('DOMContentLoaded', async () => {
+  // Check config
+  try {
+    const cfg = await fetch('/api/config').then(r => r.json());
+    if (!cfg.api_configured) {
+      toast('⚠️ 未检测到 API Key，请检查 Claude Code 配置');
+    }
+  } catch (e) { /* ignore */ }
+
+  // Load ex list, auto-select first
+  await loadExList();
+  $msgInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+  });
+});
+
+// ── Load Exes ────────────────────────────
+async function loadExList() {
+  try {
+    const exes = await fetch('/api/exes').then(r => r.json());
+    if (exes.length === 0) {
+      $exName.textContent = '没有前任';
+      $exDetail.textContent = '请先在 Claude Code 中运行 /create-ex';
+      return;
+    }
+    // auto-select first
+    if (!currentEx || !exes.find(e => e.slug === currentEx.slug)) {
+      selectEx(exes[0]);
+    }
+    renderPickerList(exes);
+  } catch (e) {
+    toast('加载前任列表失败: ' + e.message);
+  }
+}
+
+// ── Select Ex ────────────────────────────
+function selectEx(ex) {
+  currentEx = ex;
+  const p = ex.profile || {};
+  const parts = [p.occupation, p.city, p.mbti, p.zodiac].filter(Boolean);
+  $exName.textContent = ex.name;
+  $exDetail.textContent = parts.join(' · ') || '点击切换选择';
+
+  // Clear chat for this ex (TODO: localStorage per-ex)
+  history = [];
+  renderMessages();
+  hidePicker();
+  $msgInput.focus();
+}
+
+// ── Send ─────────────────────────────────
+async function send() {
+  if (isLoading) return;
+  const text = $msgInput.value.trim();
+  if (!text) return;
+  if (!currentEx) { toast('请先选择一个前任'); return; }
+
+  $msgInput.value = '';
+  addMessage('self', text);
+  setLoading(true);
+
+  try {
+    const resp = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        slug: currentEx.slug,
+        message: text,
+        history: history,
+      }),
+    });
+
+    const data = await resp.json();
+    if (data.error) {
+      addMessage('ex', '😞 ' + data.error);
+    } else {
+      addMessage('ex', data.reply);
+    }
+  } catch (e) {
+    addMessage('ex', '😞 网络错误: ' + e.message);
+  } finally {
+    setLoading(false);
+  }
+}
+
+// ── Messages ─────────────────────────────
+function addMessage(role, content) {
+  history.push({ role: role === 'self' ? 'self' : 'ex', content });
+  renderMessages();
+  scrollBottom();
+}
+
+function renderMessages() {
+  $emptyState.style.display = history.length === 0 ? 'flex' : 'none';
+
+  // Remove old message rows (keep emptyState and typing)
+  $messages.querySelectorAll('.msg-row').forEach(el => el.remove());
+
+  history.forEach((h, i) => {
+    const row = document.createElement('div');
+    row.className = 'msg-row ' + (h.role === 'self' ? 'self' : 'other');
+
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    bubble.textContent = h.content;
+    row.appendChild(bubble);
+
+    // Insert before typing indicator
+    $messages.insertBefore(row, $typing);
+  });
+}
+
+function scrollBottom() {
+  requestAnimationFrame(() => {
+    $messages.scrollTop = $messages.scrollHeight;
+  });
+}
+
+function setLoading(v) {
+  isLoading = v;
+  $typing.classList.toggle('active', v);
+  $sendBtn.disabled = v;
+  if (v) scrollBottom();
+}
+
+// ── Picker ───────────────────────────────
+function showPicker() {
+  if (isLoading) return;
+  loadExList();
+  document.getElementById('pickerOverlay').classList.add('show');
+}
+
+function hidePicker(e) {
+  if (e && e.target !== document.getElementById('pickerOverlay')) return;
+  document.getElementById('pickerOverlay').classList.remove('show');
+}
+
+function renderPickerList(exes) {
+  const list = document.getElementById('exList');
+  document.getElementById('pickerSubtitle').textContent =
+    exes.length ? `共 ${exes.length} 个` : '还没有创建，请先在 Claude Code 中运行 /create-ex';
+
+  list.innerHTML = exes.map(ex => {
+    const p = ex.profile || {};
+    const desc = [p.occupation, p.city].filter(Boolean).join(' · ') || '前任';
+    const selected = currentEx && currentEx.slug === ex.slug;
+    const emoji = p.mbti ? '🎭' : '💁';
+    return `
+      <div class="ex-item" onclick="selectEx(${JSON.stringify(ex).replace(/"/g, '&quot;')})">
+        <div class="avatar">${emoji}</div>
+        <div class="ex-info">
+          <div class="ex-name">${esc(ex.name)}</div>
+          <div class="ex-desc">${esc(desc)}</div>
+        </div>
+        ${selected ? '<div class="check">✓</div>' : ''}
+      </div>`;
+  }).join('');
+}
+
+// ── Toast ────────────────────────────────
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+</script>
+</body>
+</html>

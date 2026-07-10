@@ -297,6 +297,18 @@
 <div class="toast" id="toast"></div>
 
 <script>
+// === 缓存版本检查（解决微信浏览器缓存） ===
+(function(){
+  var BUILD = '20260710b';
+  var urlV = new URL(location.href).searchParams.get('v');
+  if (urlV !== BUILD) {
+    // 版本不对，强制跳转到最新版本
+    var u = new URL(location.href);
+    u.searchParams.set('v', BUILD);
+    location.replace(u.toString());
+  }
+})();
+
 // ============================================================
 //  Storage
 // ============================================================

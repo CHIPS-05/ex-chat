@@ -1,0 +1,7 @@
+/*
+  Cache-Control for Netlify
+  - HTML: never cache (微信浏览器会立即生效)
+  - 其他: cache 1 year
+*/
+/*  index.html  */
+/  Cache-Control: public, max-age=0, must-revalidate
