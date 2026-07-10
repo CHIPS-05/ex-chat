@@ -304,12 +304,17 @@
 })();
 
 // ============================================================
-//  Storage
+//  Storage (IndexedDB)
 // ============================================================
-const EXES_KEY='exchat_v2_exes';
-const CONFIG_KEY='exchat_v2_config';
-const DEMO_MODE='__demo__';
+const DB_NAME='exchat_db',STORE_NAME='exes';
+function openDB(){return new Promise((resolve,reject)=>{const r=indexedDB.open(DB_NAME,1);r.onupgradeneeded=()=>{r.result.createObjectStore(STORE_NAME,{keyPath:'slug'})};r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)})}
+async function loadExes(){try{const db=await openDB();return await new Promise((resolve,reject)=>{const tx=db.transaction(STORE_NAME,'readonly');const req=tx.objectStore(STORE_NAME).getAll();req.onsuccess=()=>resolve(req.result||[]);req.onerror=()=>reject(req.error)})}catch(e){return[]}}
+async function saveEx(ex){try{const db=await openDB();return await new Promise((resolve,reject)=>{const tx=db.transaction(STORE_NAME,'readwrite');tx.objectStore(STORE_NAME).put(ex);tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error)})}catch(e){console.error(e)}}
+async function deleteExDB(slug){try{const db=await openDB();return await new Promise((resolve,reject)=>{const tx=db.transaction(STORE_NAME,'readwrite');tx.objectStore(STORE_NAME).delete(slug);tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error)})}catch(e){console.error(e)}}
+async function saveExes(exes){for(const e of exes)await saveEx(e)}
+async function updateExChat(slug,chatHistory){try{const exes=await loadExes();const i=exes.findIndex(e=>e.slug===slug);if(i>=0){exes[i].chatHistory=chatHistory;await saveEx(exes[i])}}catch(e){console.error(e)}}
 
+const DEMO_MODE='__demo__';
 let currentEx=null;
 let history=[];
 let isLoading=false;
@@ -318,9 +323,9 @@ let imgData={exAvatarData:null,myAvatarData:null,bgData:null};
 // ============================================================
 //  Init
 // ============================================================
-document.addEventListener('DOMContentLoaded',()=>{
+document.addEventListener('DOMContentLoaded',async()=>{
   loadConfig();
-  renderLandingExes();
+  await renderLandingExes();
   checkShowCreateBtn();
   buildEmojiPicker();
   const ta=document.getElementById('msgInput');
@@ -350,7 +355,7 @@ function getConfig(){
   if(s) try{return JSON.parse(s)}catch(e){}
   return{key:'',url:'https://api.deepseek.com/anthropic',model:'deepseek-v4-pro'};
 }
-function saveConfig(){
+async function saveConfig(){
   const key=document.getElementById('apiKeyInput').value.trim();
   if(!key){toast('请粘贴 API Key');return;}
   const cfg={
@@ -359,17 +364,17 @@ function saveConfig(){
   };
   localStorage.setItem(CONFIG_KEY,JSON.stringify(cfg));
   toast('配置已保存','info');
-  renderLandingExes();
+  await renderLandingExes();
   checkShowCreateBtn();
-  const exes=loadExes();
+  const exes=await loadExes();
   if(exes.length>0){selectEx(exes[0]);showPage('page-chat')}
   else{showCreate()}
 }
-function quickStart(){
+async function quickStart(){
   localStorage.setItem(CONFIG_KEY,JSON.stringify({key:DEMO_MODE,url:'',model:''}));
   toast('演示模式：可看界面，但不能聊天','info');
-  renderLandingExes(); checkShowCreateBtn();
-  const exes=loadExes();
+  await renderLandingExes(); checkShowCreateBtn();
+  const exes=await loadExes();
   if(exes.length>0){selectEx(exes[0]);showPage('page-chat')}
 }
 function checkShowCreateBtn(){
@@ -378,25 +383,22 @@ function checkShowCreateBtn(){
 }
 
 // ============================================================
-//  Exes Storage
+//  Navigation & Render
 // ============================================================
-function loadExes(){try{return JSON.parse(localStorage.getItem(EXES_KEY))||[]}catch(e){return[]}}
-function saveExes(exes){localStorage.setItem(EXES_KEY,JSON.stringify(exes))}
-function renderLandingExes(){
-  const exes=loadExes(),el=document.getElementById('quickExList');
-  if(!exes.length){el.innerHTML='';return}
-  el.innerHTML=exes.map(e=>`<span class="mini-ex-tag" onclick="selectEx(loadExes().find(x=>x.slug==='${e.slug}'));showPage('page-chat')">${escHtml(e.name)}</span>`).join('');
+// Cache exes in memory for fast inline onclick access
+let _exesCache=[];
+async function renderLandingExes(){
+  _exesCache=await loadExes();
+  const el=document.getElementById('quickExList');
+  if(!_exesCache.length){el.innerHTML='';return}
+  el.innerHTML=_exesCache.map(e=>`<span class="mini-ex-tag" onclick="(function(){var ex=_exesCache.find(x=>x.slug==='${e.slug}');if(ex){selectEx(ex);showPage('page-chat')}})()">${escHtml(e.name)}</span>`).join('');
 }
-
-// ============================================================
-//  Navigation
-// ============================================================
 function showPage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   if(id==='page-chat'){refreshChat();document.getElementById('msgInput').focus()}
 }
-function goLanding(){showPage('page-landing');renderLandingExes();checkShowCreateBtn()}
+async function goLanding(){showPage('page-landing');await renderLandingExes();checkShowCreateBtn()}
 function showCreate(){
   resetCreateForm();
   showPage('page-create');
@@ -656,10 +658,10 @@ ${chatContent||'未提供'}
       chatHistory:[],createdAt:new Date().toISOString()
     };
 
-    const exes=loadExes();
+    const exes=await loadExes();
     const idx=exes.findIndex(e=>e.slug===slug);
     if(idx>=0){ex.chatHistory=exes[idx].chatHistory||[];exes[idx]=ex}else{exes.push(ex)}
-    saveExes(exes);
+    await saveExes(exes);
 
     prog.innerHTML='创建成功！跳转中...';
     setTimeout(()=>{
@@ -784,7 +786,7 @@ function splitIntoSentences(text){
 
 function addMsg(role,content){
   history.push({role,content,time:Date.now()});
-  if(currentEx){currentEx.chatHistory=history;const exes=loadExes();const i=exes.findIndex(e=>e.slug===currentEx.slug);if(i>=0){exes[i].chatHistory=history;saveExes(exes)}}
+  if(currentEx){currentEx.chatHistory=history;updateExChat(currentEx.slug,history)}
   refreshChat();scrollBottom();
 }
 
@@ -829,15 +831,16 @@ function insertEmoji(emoji){
 // ============================================================
 //  Ex Picker
 // ============================================================
-function showExPicker(){
-  const exes=loadExes(),list=document.getElementById('exList');
+async function showExPicker(){
+  const exes=await loadExes();_exesCache=exes;
+  const list=document.getElementById('exList');
   document.getElementById('pickerSubtitle').textContent=exes.length?`共 ${exes.length} 个`:'还没有创建前任';
   list.innerHTML=exes.map(e=>{
     const p=e.profile||{};
     const desc=[p.gender,p.age,p.job,p.mbti].filter(Boolean).join(' · ')||'前任';
     const sel=currentEx&&currentEx.slug===e.slug?'✓':'';
     return`<div class="ex-item">
-      <div class="ex-info" onclick="selectEx(loadExes().find(x=>x.slug==='${e.slug}'));" style="flex:1">
+      <div class="ex-info" onclick="(function(){var ex=_exesCache.find(x=>x.slug==='${e.slug}');if(ex){selectEx(ex)}})()" style="flex:1">
         <div class="ex-name">${escHtml(e.note||e.name)}</div>
         <div class="ex-desc">${escHtml(desc)}</div>
       </div>
@@ -849,9 +852,9 @@ function showExPicker(){
   document.getElementById('pickerOverlay').classList.add('show');
 }
 function hideExPicker(e){if(e&&e.target!==document.getElementById('pickerOverlay'))return;document.getElementById('pickerOverlay').classList.remove('show')}
-function deleteEx(slug){
+async function deleteEx(slug){
   if(!confirm('确定删除这个前任？所有聊天记录都会被清掉。'))return;
-  let exes=loadExes();exes=exes.filter(e=>e.slug!==slug);saveExes(exes);
+  await deleteExDB(slug);
   if(currentEx&&currentEx.slug===slug){currentEx=null;history=[];goLanding()}
   showExPicker();renderLandingExes();
 }
