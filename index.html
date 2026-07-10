@@ -40,14 +40,11 @@
   .mini-ex-tag:active{background:rgba(255,255,255,.25)}
 
   /* === Chat Page === */
-  .chat-bg{position:absolute;inset:0;background-size:cover;background-position:center;opacity:.15;pointer-events:none;z-index:0}
-  .topbar{background:var(--topbar);color:#fff;padding:8px 12px;display:flex;align-items:center;gap:10px;flex-shrink:0;padding-top:max(8px,env(safe-area-inset-top));position:relative;z-index:1}
+  .chat-bg{position:absolute;inset:0;background-size:cover;background-position:center;background-repeat:no-repeat;opacity:.12;pointer-events:none;z-index:0}
+  .topbar{background:var(--topbar);color:#fff;padding:8px 12px;display:flex;align-items:center;gap:8px;flex-shrink:0;padding-top:max(8px,env(safe-area-inset-top));position:relative;z-index:1}
   .topbar .back{font-size:20px;cursor:pointer;opacity:.8;min-width:24px}
-  .topbar .ex-avatar-mini{width:34px;height:34px;border-radius:6px;object-fit:cover;background:#555;flex-shrink:0}
-  .topbar .ex-avatar-mini.no-img{display:flex;align-items:center;justify-content:center;font-size:18px}
-  .topbar .info{flex:1;min-width:0}
-  .topbar .name{font-size:16px;font-weight:600}
-  .topbar .detail{font-size:11px;opacity:.55}
+  .topbar .info{flex:1;min-width:0;text-align:center}
+  .topbar .name{font-size:17px;font-weight:600}
   .topbar .act-btn{font-size:11px;background:rgba(255,255,255,.15);border:none;color:#fff;padding:5px 10px;border-radius:5px;cursor:pointer;white-space:nowrap}
 
   .messages{flex:1;overflow-y:auto;padding:10px 14px;display:flex;flex-direction:column;gap:8px;-webkit-overflow-scrolling:touch;position:relative;z-index:1}
@@ -57,7 +54,6 @@
   @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
   .msg-avatar{width:34px;height:34px;border-radius:6px;object-fit:cover;background:#ddd;flex-shrink:0}
   .msg-avatar.no-img{display:none}
-  .self .msg-avatar{display:none}
   .bubble-wrap{display:flex;flex-direction:column;gap:3px}
   .self .bubble-wrap{align-items:flex-end}
   .other .bubble-wrap{align-items:flex-start}
@@ -162,10 +158,8 @@
   <div class="chat-bg" id="chatBg"></div>
   <div class="topbar">
     <div class="back" onclick="goLanding()">←</div>
-    <div class="ex-avatar-mini no-img" id="topAvatar">🙂</div>
     <div class="info">
       <div class="name" id="exName">前任</div>
-      <div class="detail" id="exDetail"></div>
     </div>
     <button class="act-btn" onclick="showExPicker()">切换</button>
     <button class="act-btn" onclick="showCreate()">+新建</button>
@@ -686,18 +680,6 @@ ${chatContent||'未提供'}
 function selectEx(ex){
   currentEx=ex;history=ex.chatHistory||[];
   document.getElementById('exName').textContent=ex.note||ex.name;
-  const p=ex.profile||{};
-  const parts=[p.gender,p.age,p.job,p.mbti].filter(Boolean);
-  document.getElementById('exDetail').textContent=parts.join(' · ')||'前任';
-
-  // Update topbar avatar
-  const av=document.getElementById('topAvatar');
-  if(ex.exAvatar){
-    av.className='ex-avatar-mini';av.innerHTML='';
-    av.style.backgroundImage='url('+ex.exAvatar+')';av.style.backgroundSize='cover';
-  }else{
-    av.className='ex-avatar-mini no-img';av.textContent='🙂';av.style.backgroundImage='';
-  }
 
   // Chat background
   const bg=document.getElementById('chatBg');
