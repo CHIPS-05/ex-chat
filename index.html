@@ -11,14 +11,13 @@
     --green: #07C160; --danger: #E04840; --border: #E0E0E0;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
-  html, body {
-    height: 100%; width: 100%; overflow: hidden; position: fixed;
-    -webkit-tap-highlight-color: transparent;
-    -webkit-overflow-scrolling: touch;
-  }
+  html { height: 100%; overflow: hidden; }
   body {
+    height: 100%; overflow: hidden;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
     background: var(--bg); display: flex; flex-direction: column;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-overflow-scrolling: touch;
   }
 
   /* === Pages === */
@@ -26,7 +25,8 @@
   .page.active { display: flex; }
 
   /* === Landing Page === */
-  .landing { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); color: #fff; text-align: center; padding: 30px 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .landing { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); color: #fff; flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .landing-inner { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100%; padding: 30px 24px 40px; text-align: center; }
   .landing h1 { font-size: 42px; margin-bottom: 8px; }
   .landing .sub { font-size: 15px; opacity: 0.65; margin-bottom: 32px; line-height: 1.6; }
   .landing .card { background: rgba(255,255,255,0.08); border-radius: 16px; padding: 24px; max-width: 380px; width: 100%; backdrop-filter: blur(10px); }
@@ -124,6 +124,7 @@
 <!-- ========== PAGE: Landing / Home ========== -->
 <div class="page active" id="page-landing">
   <div class="landing">
+    <div class="landing-inner">
     <h1>💔</h1>
     <h1 style="margin-top:0">前任 AI</h1>
     <div class="sub">把 ta 的聊天方式蒸馏成 AI<br>用 ta 的方式，再说几句话</div>
@@ -143,6 +144,7 @@
       你的 API Key 只存在浏览器本地，不会上传到任何服务器。<br>
       支持 Anthropic / DeepSeek 兼容 API。<br>
       <a href="https://platform.deepseek.com/api_keys" target="_blank">获取 DeepSeek Key →</a>
+    </div>
     </div>
   </div>
 </div>
