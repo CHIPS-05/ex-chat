@@ -775,9 +775,9 @@ async function sendMsg(){
       // Split by newlines: one bubble per line
       const bubbles=reply.split(/\n+/).map(s=>s.trim()).filter(Boolean)
         .flatMap(s=>{if(s.length>25)return s.match(/.{1,20}/g)||[s];return[s]});
-      const pace=bubbles.length>=4?250:bubbles.length>=3?400:700;
+      const pace=bubbles.length>=4?800:bubbles.length>=3?1200:1500;
       for(let i=0;i<bubbles.length;i++){
-        const delay=Math.min(pace+bubbles[i].length*40+Math.random()*400,2500);
+        const delay=Math.min(pace+bubbles[i].length*80+Math.random()*1000,4000);
         await new Promise(r=>setTimeout(r,delay));
         addMsg('ex',bubbles[i]);
       }
