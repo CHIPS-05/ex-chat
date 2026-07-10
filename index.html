@@ -746,17 +746,20 @@ async function sendMsg(){
   const systemPrompt=currentEx.persona
     +(currentEx.memory?'\n\n---\n## 共同记忆\n'+currentEx.memory:'')
     +'\n\n---\n## 对话规则\n'
-    +'你现在就是'+currentEx.name+'本人，不是AI。\n'
-    +'核心原则：\n'
-    +'1. 严禁编造。聊天记录和共同记忆里没提过的人、事、经历，你一概不知道。不知道就说不知道，或敷衍过去。\n'
-    +'2. 每条气泡都要围绕同一个话题，不要突然跳到另一个毫不相干的事。\n'
-    +'3. 条数跟着情绪走：\n'
-    +'   - 平常闲聊、没话找话 → 回1-2条，淡淡的\n'
-    +'   - 对方说了让你着急/生气/委屈的话 → 可以3-5条连发，语速加快，甚至带情绪\n'
-    +'   - 懒得理、敷衍 → 就1条，一个字两个字都行\n'
-    +'4. 语气平淡自然，分手后的距离感。不突然深情或煽情。\n'
-    +'5. 口头禅只在特定语境自然带出，不是每条都有。\n'
-    +'用中文回复。每条不超过30字。用 | 分隔每条。';
+    +'你现在就是'+currentEx.name+'本人。\n'
+    +'1. 严禁编造。没在聊天记录和记忆里出现过的人事物，你一概不知道。\n'
+    +'2. 只回对方刚说的话，不要岔开话题、不要\"顺便说一句\"、不要突然提别的事。\n'
+    +'3. 语气平淡，分手后的距离感。不煽情不深情。\n'
+    +'4. 条数跟情绪走：平淡→1-2条 / 急了→3-5条连发 / 懒得理→1条敷衍。\n'
+    +'\n'
+    +'【格式要求——这条最重要！！！】\n'
+    +'你必须用 | 把每条气泡分开。程序会把 | 当分隔符切成独立消息。\n'
+    +'举例：\n'
+    +'对方说：今天被老板说了 烦\n'
+    +'你回：咋了 | 他又找你茬？ | 应该不是你的问题吧\n'
+    +'——上面这行会被切成3条气泡，依次发出。\n'
+    +'如果你不用 |，所有字会被当成一大段，读起来像小作文，完全不像真人。\n'
+    +'每条不超过25字。必须用 | 分隔。';
 
   const apiMessages=[],recent=history.slice(-40);
   for(let i=0;i<recent.length;i++){
@@ -767,13 +770,18 @@ async function sendMsg(){
   apiMessages.push({role:'user',content:text});
 
   try{
-    const reply=await callAPI(null,systemPrompt,apiMessages,512);
+    const reply=await callAPI(null,systemPrompt,apiMessages,300);
     if(reply){
-      const bubbles=(reply.includes('|')
-        ?reply.split('|')
-        :[reply])
-        .map(s=>s.trim()).filter(Boolean);
-      // Speed adapts: many bubbles = urgent/emotional → faster
+      // Split: prefer |, fallback aggressive sentence-split
+      let bubbles;
+      if(reply.includes('|')){
+        bubbles=reply.split('|').map(s=>s.trim()).filter(Boolean);
+      }else{
+        // LLM ignored | — force split by punctuation, cap each at 25 chars
+        bubbles=reply.split(/(?<=[。！？；\.!\?;\n])/g)
+          .map(s=>s.trim()).filter(Boolean)
+          .flatMap(s=>{if(s.length>25)return s.split(/(?<=，,)/g).map(x=>x.trim()).filter(Boolean);return[s]});
+      }
       const pace=bubbles.length>=4?250:bubbles.length>=3?400:700;
       for(let i=0;i<bubbles.length;i++){
         const delay=Math.min(pace+bubbles[i].length*40+Math.random()*400,2500);
