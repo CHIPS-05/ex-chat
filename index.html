@@ -10,196 +10,269 @@
     --bubble-other: #FFF; --text: #1A1A1A; --muted: #999;
     --green: #07C160; --danger: #E04840; --border: #E0E0E0;
   }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  html { height: 100%; overflow: hidden; }
-  body {
-    height: 100%; overflow: hidden;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
-    background: var(--bg); display: flex; flex-direction: column;
-    -webkit-tap-highlight-color: transparent;
-    -webkit-overflow-scrolling: touch;
-  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{height:100%;overflow:hidden}
+  body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);display:flex;flex-direction:column;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+  .page{display:none;flex-direction:column;height:100%;width:100%;overflow:hidden}
+  .page.active{display:flex}
 
-  /* === Pages === */
-  .page { display: none; flex-direction: column; height: 100%; width: 100%; overflow: hidden; }
-  .page.active { display: flex; }
+  /* === Landing === */
+  .landing{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);color:#fff;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .landing-inner{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100%;padding:24px 20px 40px;text-align:center}
+  .landing h1{font-size:38px;margin-bottom:6px}
+  .landing .sub{font-size:14px;opacity:.6;margin-bottom:24px;line-height:1.6}
+  .landing .card{background:rgba(255,255,255,.08);border-radius:16px;padding:22px;max-width:380px;width:100%}
+  .landing .card p{font-size:13px;opacity:.7;margin-bottom:10px;text-align:left}
+  .landing input{width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:#fff;font-size:14px;outline:none;margin-bottom:8px;font-family:monospace}
+  .landing input::placeholder{color:rgba(255,255,255,.35)}
+  .btn{width:100%;padding:12px;border-radius:10px;border:none;font-size:15px;font-weight:600;cursor:pointer;margin-top:6px}
+  .btn:active{transform:scale(.98)}
+  .btn-primary{background:var(--green);color:#fff}
+  .btn-primary:active{background:#06AD56}
+  .btn-secondary{background:rgba(255,255,255,.15);color:#fff}
+  .landing .note{font-size:11px;opacity:.4;margin-top:16px;line-height:1.6}
+  .landing .note a{color:inherit}
+  .mini-ex-list{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 12px;justify-content:center}
+  .mini-ex-tag{background:rgba(255,255,255,.15);padding:6px 14px;border-radius:20px;font-size:13px;cursor:pointer}
+  .mini-ex-tag:active{background:rgba(255,255,255,.25)}
 
-  /* === Landing Page === */
-  .landing { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); color: #fff; flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-  .landing-inner { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100%; padding: 30px 24px 40px; text-align: center; }
-  .landing h1 { font-size: 42px; margin-bottom: 8px; }
-  .landing .sub { font-size: 15px; opacity: 0.65; margin-bottom: 32px; line-height: 1.6; }
-  .landing .card { background: rgba(255,255,255,0.08); border-radius: 16px; padding: 24px; max-width: 380px; width: 100%; backdrop-filter: blur(10px); }
-  .landing .card p { font-size: 13px; opacity: 0.7; margin-bottom: 12px; text-align: left; }
-  .landing input { width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: #fff; font-size: 14px; outline: none; margin-bottom: 10px; font-family: monospace; }
-  .landing input::placeholder { color: rgba(255,255,255,0.35); }
-  .landing .btn { width: 100%; padding: 12px; border-radius: 10px; border: none; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 6px; }
-  .btn-primary { background: #07C160; color: #fff; }
-  .btn-secondary { background: rgba(255,255,255,0.15); color: #fff; }
-  .btn-primary:active { background: #06AD56; }
-  .landing .note { font-size: 11px; opacity: 0.4; margin-top: 20px; line-height: 1.6; }
-  .landing .note a { color: inherit; }
+  /* === Chat Page === */
+  .chat-bg{position:absolute;inset:0;background-size:cover;background-position:center;opacity:.15;pointer-events:none;z-index:0}
+  .topbar{background:var(--topbar);color:#fff;padding:8px 12px;display:flex;align-items:center;gap:10px;flex-shrink:0;padding-top:max(8px,env(safe-area-inset-top));position:relative;z-index:1}
+  .topbar .back{font-size:20px;cursor:pointer;opacity:.8;min-width:24px}
+  .topbar .ex-avatar-mini{width:34px;height:34px;border-radius:6px;object-fit:cover;background:#555;flex-shrink:0}
+  .topbar .ex-avatar-mini.no-img{display:flex;align-items:center;justify-content:center;font-size:18px}
+  .topbar .info{flex:1;min-width:0}
+  .topbar .name{font-size:16px;font-weight:600}
+  .topbar .detail{font-size:11px;opacity:.55}
+  .topbar .act-btn{font-size:11px;background:rgba(255,255,255,.15);border:none;color:#fff;padding:5px 10px;border-radius:5px;cursor:pointer;white-space:nowrap}
 
-  /* === Chat Page (WeChat style) === */
-  .topbar { background: var(--topbar); color: #fff; padding: 12px 16px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; padding-top: max(12px, env(safe-area-inset-top)); }
-  .topbar .back { font-size: 20px; cursor: pointer; opacity: 0.8; }
-  .topbar .info { flex:1; min-width:0; }
-  .topbar .name { font-size: 17px; font-weight: 600; }
-  .topbar .detail { font-size: 12px; opacity: 0.55; margin-top: 1px; }
-  .topbar .actions { display: flex; gap: 6px; }
-  .topbar .act-btn { font-size: 12px; background: rgba(255,255,255,0.15); border: none; color: #fff; padding: 6px 12px; border-radius: 6px; cursor: pointer; white-space: nowrap; }
+  .messages{flex:1;overflow-y:auto;padding:10px 14px;display:flex;flex-direction:column;gap:8px;-webkit-overflow-scrolling:touch;position:relative;z-index:1}
+  .msg-row{display:flex;gap:8px;max-width:78%;animation:fadeUp .2s;align-items:flex-end}
+  .msg-row.self{align-self:flex-end;flex-direction:row-reverse}
+  .msg-row.other{align-self:flex-start}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+  .msg-avatar{width:34px;height:34px;border-radius:6px;object-fit:cover;background:#ddd;flex-shrink:0}
+  .msg-avatar.no-img{display:none}
+  .self .msg-avatar{display:none}
+  .bubble-wrap{display:flex;flex-direction:column;gap:3px}
+  .self .bubble-wrap{align-items:flex-end}
+  .other .bubble-wrap{align-items:flex-start}
+  .bubble{padding:9px 12px;border-radius:8px;font-size:15px;line-height:1.5;white-space:pre-wrap;word-break:break-word;position:relative;z-index:1}
+  .self .bubble{background:var(--bubble-self);color:#000;border-top-right-radius:2px;margin-right:0}
+  .other .bubble{background:var(--bubble-other);color:var(--text);border-top-left-radius:2px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
 
-  .messages { flex: 1; overflow-y: auto; padding: 16px 14px; display: flex; flex-direction: column; gap: 12px; -webkit-overflow-scrolling: touch; }
-  .msg-row { display: flex; flex-direction: column; max-width: 75%; animation: fadeUp .25s; word-break: break-word; }
-  .msg-row.self { align-self: flex-end; align-items: flex-end; }
-  .msg-row.other { align-self: flex-start; align-items: flex-start; }
-  @keyframes fadeUp { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform: translateY(0); } }
-  .bubble { padding: 10px 14px; border-radius: 8px; font-size: 15px; line-height: 1.55; white-space: pre-wrap; }
-  .self .bubble { background: var(--bubble-self); color: #000; border-top-right-radius: 2px; }
-  .other .bubble { background: var(--bubble-other); color: var(--text); border-top-left-radius: 2px; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
-  .msg-row .time { font-size: 10px; color: #B0B0B0; margin-top: 3px; padding: 0 4px; }
+  .empty-chat{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;color:#BBB;gap:10px;text-align:center;padding:40px}
+  .empty-chat .icon{font-size:36px}
 
-  .typing { align-self: flex-start; padding: 10px 14px; background: #fff; border-radius: 8px; border-top-left-radius: 2px; display: none; gap: 4px; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
-  .typing.active { display: flex; }
-  .typing span { width: 7px; height: 7px; border-radius: 50%; background: #BBB; animation: bounce 1.2s infinite; }
-  .typing span:nth-child(2) { animation-delay: .15s; }
-  .typing span:nth-child(3) { animation-delay: .3s; }
-  @keyframes bounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-6px); } }
+  .input-area{background:#F7F7F7;padding:8px 10px;display:flex;gap:8px;align-items:flex-end;flex-shrink:0;border-top:1px solid var(--border);padding-bottom:max(8px,env(safe-area-inset-bottom));position:relative;z-index:1}
+  .input-area .emoji-btn{width:36px;height:36px;border:none;background:0;font-size:22px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;border-radius:50%}
+  .input-area textarea{flex:1;border:1px solid #DDD;border-radius:8px;padding:8px 12px;font-size:15px;outline:none;background:#fff;resize:none;min-height:36px;max-height:100px;line-height:1.4;font-family:inherit}
+  .input-area textarea:focus{border-color:var(--green)}
+  .input-area button{background:var(--green);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:14px;font-weight:600;cursor:pointer;flex-shrink:0}
+  .input-area button:active{background:#06AD56}
+  .input-area button:disabled{background:#BEBEBE}
 
-  .empty-chat { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; color: #BBB; gap: 10px; text-align: center; padding: 40px; }
-  .empty-chat .icon { font-size: 40px; }
-  .empty-chat .hint { font-size: 12px; color: #CCC; }
-
-  .input-area { background: #F7F7F7; padding: 10px 12px; display: flex; gap: 10px; align-items: flex-end; flex-shrink: 0; border-top: 1px solid var(--border); padding-bottom: max(10px, env(safe-area-inset-bottom)); }
-  .input-area input { flex: 1; border: 1px solid #DDD; border-radius: 8px; padding: 10px 14px; font-size: 15px; outline: none; background: #fff; min-width: 0; }
-  .input-area input:focus { border-color: var(--green); }
-  .input-area button { background: var(--green); color: #fff; border: none; border-radius: 8px; padding: 10px 18px; font-size: 15px; font-weight: 600; cursor: pointer; flex-shrink: 0; }
-  .input-area button:active { background: #06AD56; }
-  .input-area button:disabled { background: #BEBEBE; }
+  /* Emoji Picker */
+  .emoji-picker{display:none;position:absolute;bottom:100%;left:0;right:0;background:#fff;border-top:1px solid #e0e0e0;padding:10px;z-index:10;flex-wrap:wrap;gap:6px;justify-content:center;max-height:180px;overflow-y:auto}
+  .emoji-picker.show{display:flex}
+  .emoji-picker span{font-size:24px;cursor:pointer;padding:4px;border-radius:6px}
+  .emoji-picker span:active{background:#eee}
 
   /* === Create Page === */
-  .create-page { background: var(--bg); }
-  .create-page .createtop { background: var(--topbar); color: #fff; padding: 12px 16px; font-size: 17px; font-weight: 600; text-align: center; flex-shrink: 0; padding-top: max(12px, env(safe-area-inset-top)); }
-  .create-form { flex: 1; padding: 20px; max-width: 500px; margin: 0 auto; min-height: 0; width: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-  .create-form h3 { font-size: 16px; margin: 20px 0 8px; color: #555; }
-  .create-form h3:first-child { margin-top: 0; }
-  .create-form label { font-size: 13px; color: #888; display: block; margin-bottom: 4px; }
-  .create-form input, .create-form textarea { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #DDD; font-size: 15px; outline: none; font-family: inherit; margin-bottom: 10px; }
-  .create-form textarea { resize: vertical; min-height: 80px; }
-  .create-form input:focus, .create-form textarea:focus { border-color: var(--green); }
-  .create-form .btn { width: 100%; padding: 14px; border-radius: 10px; border: none; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 12px; }
-  .create-form .btn:disabled { background: #CCC; color: #999; }
-  .progress-box { background: #FFF3CD; border-radius: 8px; padding: 12px 16px; font-size: 13px; color: #856404; margin-top: 12px; display: none; line-height: 1.6; }
-  .progress-box.show { display: block; }
+  .create-page{background:var(--bg)}
+  .createtop{background:var(--topbar);color:#fff;padding:12px 16px;font-size:17px;font-weight:600;text-align:center;flex-shrink:0;padding-top:max(12px,env(safe-area-inset-top))}
+  .create-form{flex:1;padding:20px;max-width:520px;margin:0 auto;min-height:0;width:100%;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .create-form h3{font-size:15px;margin:18px 0 6px;color:#555;border-bottom:1px solid #eee;padding-bottom:4px}
+  .create-form h3:first-child{margin-top:0}
+  .create-form label{font-size:12px;color:#888;display:block;margin-bottom:2px}
+  .create-form input,.create-form textarea,.create-form select{width:100%;padding:9px 12px;border-radius:8px;border:1px solid #DDD;font-size:14px;outline:none;font-family:inherit;margin-bottom:8px;background:#fff}
+  .create-form textarea{resize:vertical;min-height:60px}
+  .create-form select{appearance:auto}
+  .create-form input:focus,.create-form textarea:focus,.create-form select:focus{border-color:var(--green)}
+  .create-form .row{display:flex;gap:8px}
+  .create-form .row>*{flex:1;min-width:0}
+  .img-upload{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .img-upload .preview{width:60px;height:60px;border-radius:10px;object-fit:cover;background:#eee;border:1px dashed #ccc;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .img-upload .preview img{width:100%;height:100%;border-radius:10px;object-fit:cover}
+  .img-upload .preview .placeholder{font-size:28px;color:#ccc}
+  .img-upload .info{font-size:12px;color:#999;flex:1}
+  .img-upload input[type=file]{display:none}
+  .img-upload .upload-btn{padding:6px 14px;border:1px solid var(--green);color:var(--green);border-radius:6px;font-size:13px;cursor:pointer;background:#fff;white-space:nowrap}
+  .img-upload .upload-btn:active{background:#f0fff4}
+  .file-status{font-size:12px;color:var(--green);margin-bottom:8px}
+  .progress-box{background:#FFF3CD;border-radius:8px;padding:12px 16px;font-size:13px;color:#856404;margin-top:12px;display:none;line-height:1.6}
+  .progress-box.show{display:block}
 
-  /* === Ex Picker Modal === */
-  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: none; align-items: flex-end; justify-content: center; z-index: 100; }
-  .overlay.show { display: flex; }
-  .sheet { background: #fff; width: 100%; max-width: 500px; border-radius: 16px 16px 0 0; padding: 20px 0 0; max-height: 70vh; display: flex; flex-direction: column; animation: slideUp .25s; }
-  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-  .sheet h3 { text-align: center; font-size: 16px; margin-bottom: 8px; padding: 0 20px; }
-  .sheet .list { overflow-y: auto; flex: 1; padding-bottom: env(safe-area-inset-bottom); }
-  .sheet .ex-item { display: flex; align-items: center; gap: 12px; padding: 14px 20px; cursor: pointer; border-bottom: 1px solid #F0F0F0; justify-content: space-between; }
-  .sheet .ex-item:active { background: #F5F5F5; }
-  .sheet .ex-item .ex-info { flex: 1; min-width: 0; }
-  .sheet .ex-name { font-size: 15px; font-weight: 500; }
-  .sheet .ex-desc { font-size: 12px; color: #999; margin-top: 2px; }
-  .sheet .ex-item .del { color: var(--danger); font-size: 12px; padding: 6px 10px; cursor: pointer; }
-  .sheet .cancel { display: block; width: 100%; padding: 16px; text-align: center; border: none; background: #F5F5F5; font-size: 15px; color: #666; cursor: pointer; margin-top: 8px; }
-  .sheet .subtitle { text-align: center; font-size: 12px; color: #999; margin-bottom: 12px; padding: 0 20px; }
+  /* === Modal === */
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:flex-end;justify-content:center;z-index:100}
+  .overlay.show{display:flex}
+  .sheet{background:#fff;width:100%;max-width:500px;border-radius:16px 16px 0 0;padding:20px 0 0;max-height:70vh;display:flex;flex-direction:column;animation:slideUp .25s}
+  @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+  .sheet h3{text-align:center;font-size:16px;margin-bottom:8px;padding:0 20px}
+  .sheet .list{overflow-y:auto;flex:1;padding-bottom:env(safe-area-inset-bottom)}
+  .sheet .ex-item{display:flex;align-items:center;gap:12px;padding:13px 20px;cursor:pointer;border-bottom:1px solid #F0F0F0}
+  .sheet .ex-item:active{background:#F5F5F5}
+  .sheet .ex-info{flex:1;min-width:0}
+  .sheet .ex-name{font-size:15px;font-weight:500}
+  .sheet .ex-desc{font-size:12px;color:#999}
+  .sheet .ex-item .del{color:var(--danger);font-size:12px;padding:6px 10px;cursor:pointer}
+  .sheet .cancel{display:block;width:100%;padding:16px;text-align:center;border:none;background:#F5F5F5;font-size:15px;color:#666;cursor:pointer;margin-top:8px}
+  .sheet .subtitle{text-align:center;font-size:12px;color:#999;margin-bottom:12px;padding:0 20px}
 
   /* === Toast === */
-  .toast { position: fixed; top: 60px; left: 50%; transform: translateX(-50%); background: var(--danger); color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 13px; z-index: 200; opacity: 0; transition: opacity .3s; pointer-events: none; max-width: 90vw; text-align: center; }
-  .toast.show { opacity: 1; }
-  .toast.info { background: #333; }
-
-  /* === Landing mini-info === */
-  .mini-ex-list { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
-  .mini-ex-tag { background: rgba(255,255,255,0.15); padding: 6px 14px; border-radius: 20px; font-size: 13px; cursor: pointer; }
-  .mini-ex-tag:active { background: rgba(255,255,255,0.25); }
+  .toast{position:fixed;top:60px;left:50%;transform:translateX(-50%);background:var(--danger);color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none;max-width:90vw;text-align:center}
+  .toast.show{opacity:1}
+  .toast.info{background:#333}
 </style>
 </head>
 <body>
 
-<!-- ========== PAGE: Landing / Home ========== -->
+<!-- ========== Landing Page ========== -->
 <div class="page active" id="page-landing">
   <div class="landing">
     <div class="landing-inner">
-    <h1>💔</h1>
-    <h1 style="margin-top:0">前任 AI</h1>
-    <div class="sub">把 ta 的聊天方式蒸馏成 AI<br>用 ta 的方式，再说几句话</div>
-
-    <div class="mini-ex-list" id="quickExList"></div>
-
-    <div class="card">
-      <p>🔑 需要 API Key 才能聊天</p>
-      <input type="password" id="apiKeyInput" placeholder="粘贴你的 API Key（存本地，不上传）">
-      <input type="text" id="apiUrlInput" placeholder="API Base URL（可选）" value="https://api.deepseek.com/anthropic">
-      <input type="text" id="modelInput" placeholder="Model（可选）" value="deepseek-v4-pro">
-      <button class="btn btn-primary" onclick="saveConfig()">保存配置</button>
-      <button class="btn btn-primary" id="btnCreateFirst" onclick="showCreate()" style="margin-top:6px">👉 创建前任 AI</button>
-      <button class="btn btn-secondary" onclick="quickStart()" style="margin-top:6px">跳过，用演示模式（仅预览）</button>
-    </div>
-    <div class="note">
-      你的 API Key 只存在浏览器本地，不会上传到任何服务器。<br>
-      支持 Anthropic / DeepSeek 兼容 API。<br>
-      <a href="https://platform.deepseek.com/api_keys" target="_blank">获取 DeepSeek Key →</a>
-    </div>
+      <h1>💔</h1>
+      <h1 style="margin-top:0">前任 AI</h1>
+      <div class="sub">把 ta 的聊天方式蒸馏成 AI<br>用 ta 的方式，再说几句话</div>
+      <div class="mini-ex-list" id="quickExList"></div>
+      <div class="card">
+        <p>🔑 需要 API Key 才能聊天</p>
+        <input type="password" id="apiKeyInput" placeholder="粘贴你的 API Key（存本地，不上传）">
+        <input type="text" id="apiUrlInput" placeholder="API Base URL（可选）" value="https://api.deepseek.com/anthropic">
+        <input type="text" id="modelInput" placeholder="Model（可选）" value="deepseek-v4-pro">
+        <button class="btn btn-primary" onclick="saveConfig()">保存配置</button>
+        <button class="btn btn-primary" id="btnCreateFirst" onclick="showCreate()" style="margin-top:6px">👉 创建前任 AI</button>
+        <button class="btn btn-secondary" onclick="quickStart()" style="margin-top:6px">跳过，用演示模式（仅预览）</button>
+      </div>
+      <div class="note">
+        你的 API Key 只存在浏览器本地，不会上传到任何服务器。<br>
+        支持 Anthropic / DeepSeek 兼容 API。<br>
+        <a href="https://platform.deepseek.com/api_keys" target="_blank">获取 DeepSeek Key →</a>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- ========== PAGE: Chat ========== -->
+<!-- ========== Chat Page ========== -->
 <div class="page" id="page-chat">
+  <div class="chat-bg" id="chatBg"></div>
   <div class="topbar">
     <div class="back" onclick="goLanding()">←</div>
+    <div class="ex-avatar-mini no-img" id="topAvatar">🙂</div>
     <div class="info">
       <div class="name" id="exName">前任</div>
       <div class="detail" id="exDetail"></div>
     </div>
-    <div class="actions">
-      <button class="act-btn" onclick="showExPicker()">切换</button>
-      <button class="act-btn" onclick="showCreate()">+新建</button>
-    </div>
+    <button class="act-btn" onclick="showExPicker()">切换</button>
+    <button class="act-btn" onclick="showCreate()">+新建</button>
   </div>
   <div class="messages" id="messages">
     <div class="empty-chat" id="emptyChat">
       <div class="icon">💬</div>
       <div class="hint" id="emptyHint">发送第一条消息吧</div>
     </div>
-    <div class="typing" id="typing"><span></span><span></span><span></span></div>
   </div>
-  <div class="input-area">
-    <input type="text" id="msgInput" placeholder="输入消息..." maxlength="1000" autocomplete="off">
+  <div class="input-area" style="position:relative">
+    <div class="emoji-picker" id="emojiPicker"></div>
+    <button class="emoji-btn" onclick="toggleEmoji()" title="表情">😊</button>
+    <textarea id="msgInput" rows="1" placeholder="" maxlength="2000" autocomplete="off"></textarea>
     <button id="sendBtn" onclick="sendMsg()">发送</button>
   </div>
 </div>
 
-<!-- ========== PAGE: Create Ex ========== -->
+<!-- ========== Create Page ========== -->
 <div class="page create-page" id="page-create">
   <div class="createtop" id="createTop">创建前任 AI</div>
-  <div class="create-form">
+  <div class="create-form" id="createFormEl">
     <h3>📝 基本信息</h3>
     <label>花名 / 代号 *</label>
     <input type="text" id="cfName" placeholder="如：小明 / 那个人 / 初恋" maxlength="30">
-    <label>一句话描述</label>
-    <input type="text" id="cfDesc" placeholder="如：在一起两年，分手半年，互联网产品经理">
+    <label>你对 ta 的备注</label>
+    <input type="text" id="cfNote" placeholder="如：🐷猪头 / 宝贝" maxlength="30">
+    <div class="row">
+      <div><label>性别</label><select id="cfGender"><option value="">不限</option><option value="男">男</option><option value="女">女</option></select></div>
+      <div><label>年龄</label><input type="number" id="cfAge" placeholder="大概也行" min="10" max="99"></div>
+    </div>
+    <div class="row">
+      <div><label>生日</label><input type="text" id="cfBirthday" placeholder="如：1998-05-20" maxlength="20"></div>
+      <div><label>MBTI / 星座</label><input type="text" id="cfMbti" placeholder="如：INFP / 天蝎座" maxlength="20"></div>
+    </div>
+    <label>职业 / 身份</label>
+    <input type="text" id="cfJob" placeholder="如：互联网产品经理">
+    <label>一句话描述（在一起多久、分手多久等）</label>
+    <input type="text" id="cfDesc" placeholder="如：在一起两年，分手半年了">
     <label>性格标签</label>
     <input type="text" id="cfTags" placeholder="如：毒舌，傲娇，心思细腻，容易炸毛">
+    <label>爱好</label>
+    <input type="text" id="cfHobbies" placeholder="如：打游戏，看电影，吃火锅">
+    <label>喜欢的东西</label>
+    <input type="text" id="cfLikes" placeholder="如：猫，雨天，冰美式">
+    <label>讨厌的东西</label>
+    <input type="text" id="cfDislikes" placeholder="如：香菜，等人，早起">
+
+    <h3>📷 头像 & 背景</h3>
+    <div class="row">
+      <div style="flex:1">
+        <label>ta 的头像</label>
+        <div class="img-upload">
+          <div class="preview" id="previewExAvatar"><span class="placeholder">🙂</span></div>
+          <div>
+            <div class="info" id="infoExAvatar">未选择</div>
+            <button class="upload-btn" onclick="document.getElementById('fileExAvatar').click()">选择图片</button>
+            <input type="file" id="fileExAvatar" accept="image/*" onchange="previewImg(this,'previewExAvatar','infoExAvatar','exAvatarData')">
+          </div>
+        </div>
+      </div>
+      <div style="flex:1">
+        <label>我的头像</label>
+        <div class="img-upload">
+          <div class="preview" id="previewMyAvatar"><span class="placeholder">🧑</span></div>
+          <div>
+            <div class="info" id="infoMyAvatar">未选择</div>
+            <button class="upload-btn" onclick="document.getElementById('fileMyAvatar').click()">选择图片</button>
+            <input type="file" id="fileMyAvatar" accept="image/*" onchange="previewImg(this,'previewMyAvatar','infoMyAvatar','myAvatarData')">
+          </div>
+        </div>
+      </div>
+    </div>
+    <label>聊天背景</label>
+    <div class="img-upload">
+      <div class="preview" id="previewBg"><span class="placeholder">🖼️</span></div>
+      <div>
+        <div class="info" id="infoBg">未选择（可选）</div>
+        <button class="upload-btn" onclick="document.getElementById('fileBg').click()">选择图片</button>
+        <input type="file" id="fileBg" accept="image/*" onchange="previewImg(this,'previewBg','infoBg','bgData')">
+      </div>
+    </div>
 
     <h3>💬 聊天记录（可选但强烈推荐）</h3>
-    <label>粘贴你们的聊天记录，越真实越好。微信长按对话 → 多选 → 逐条选择 → 收藏 → 从收藏复制出来。</label>
-    <textarea id="cfChats" rows="6" placeholder="格式不限，可以是：
+    <label>方式一：上传微信/QQ 聊天记录文件（txt/html/csv）</label>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+      <button class="upload-btn" onclick="document.getElementById('fileChatLog').click()">📎 上传聊天记录文件</button>
+      <input type="file" id="fileChatLog" accept=".txt,.html,.csv,.json" onchange="handleChatLogFile(this)" style="display:none">
+      <span class="file-status" id="chatLogStatus"></span>
+    </div>
+    <label>方式二：直接粘贴聊天记录</label>
+    <textarea id="cfChats" rows="5" placeholder="格式不限，直接粘贴对话内容即可。例如：
 2023-03-15 21:30 对方：今天好累啊
 2023-03-15 21:32 我：怎么了
-...或者直接粘贴对话内容..."></textarea>
-
+...
+或者直接粘贴：
+她说：你今天怎么没回我消息
+我说：刚刚在开会"></textarea>
     <label>ta 的口头禅 / 惯用语</label>
-    <input type="text" id="cfPhrases" placeholder="如：哈哈哈 / 随便 / 别烦我 / 嗯嗯">
+    <input type="text" id="cfPhrases" placeholder="如：哈哈哈 / 随便 / 别烦我 / 嗯嗯 / 好哦">
 
     <h3>🎯 关系记忆（可选）</h3>
     <label>你们之间难忘的事、共同经历</label>
     <textarea id="cfMemory" rows="3" placeholder="如：一起在厦门看过日出 / ta 最讨厌吃香菜 / 每年生日都会收到 ta 的手写信..."></textarea>
+    <label style="margin-top:8px">或上传恋爱经过文档</label>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+      <button class="upload-btn" onclick="document.getElementById('fileStory').click()">📎 上传文档</button>
+      <input type="file" id="fileStory" accept=".txt,.md,.docx,.pdf" onchange="handleStoryFile(this)" style="display:none">
+      <span class="file-status" id="storyStatus"></span>
+    </div>
 
     <button class="btn btn-primary" id="createBtn" onclick="createEx()">✨ 生成前任 AI</button>
     <div class="progress-box" id="progress"></div>
@@ -218,227 +291,332 @@
   </div>
 </div>
 
-<!-- ========== Toast ========== -->
 <div class="toast" id="toast"></div>
 
 <script>
 // ============================================================
-//  State
+//  Storage
 // ============================================================
-let currentEx = null;       // { slug, name, persona, memory, profile }
-let history = [];            // [{ role:'self'|'ex', content }]
-let isLoading = false;
-const DEMO_MODE = '__demo__';
-const EXES_KEY = 'exchat_exes';       // localStorage key for all exes
-const CONFIG_KEY = 'exchat_config';   // localStorage key for API config
+const EXES_KEY='exchat_v2_exes';
+const CONFIG_KEY='exchat_v2_config';
+const DEMO_MODE='__demo__';
+
+let currentEx=null;
+let history=[];
+let isLoading=false;
+let imgData={exAvatarData:null,myAvatarData:null,bgData:null};
 
 // ============================================================
 //  Init
 // ============================================================
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded',()=>{
   loadConfig();
   renderLandingExes();
   checkShowCreateBtn();
-  document.getElementById('msgInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); }
+  buildEmojiPicker();
+  const ta=document.getElementById('msgInput');
+  ta.addEventListener('keydown',e=>{
+    if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}
+  });
+  ta.addEventListener('input',()=>{
+    ta.style.height='auto';
+    ta.style.height=Math.min(ta.scrollHeight,100)+'px';
   });
 });
 
-function loadConfig() {
-  const saved = localStorage.getItem(CONFIG_KEY);
-  if (saved) {
-    try {
-      const c = JSON.parse(saved);
-      document.getElementById('apiKeyInput').value = c.key || '';
-      document.getElementById('apiUrlInput').value = c.url || 'https://api.deepseek.com/anthropic';
-      document.getElementById('modelInput').value = c.model || 'deepseek-v4-pro';
-    } catch(e) {}
-  }
+// ============================================================
+//  Config
+// ============================================================
+function loadConfig(){
+  const s=localStorage.getItem(CONFIG_KEY);
+  if(s) try{
+    const c=JSON.parse(s);
+    document.getElementById('apiKeyInput').value=c.key||'';
+    document.getElementById('apiUrlInput').value=c.url||'https://api.deepseek.com/anthropic';
+    document.getElementById('modelInput').value=c.model||'deepseek-v4-pro';
+  }catch(e){}
 }
-
-function getConfig() {
-  const saved = localStorage.getItem(CONFIG_KEY);
-  if (saved) {
-    try { return JSON.parse(saved); } catch(e) {}
-  }
-  return { key: '', url: 'https://api.deepseek.com/anthropic', model: 'deepseek-v4-pro' };
+function getConfig(){
+  const s=localStorage.getItem(CONFIG_KEY);
+  if(s) try{return JSON.parse(s)}catch(e){}
+  return{key:'',url:'https://api.deepseek.com/anthropic',model:'deepseek-v4-pro'};
 }
-
-function saveConfig() {
-  const key = document.getElementById('apiKeyInput').value.trim();
-  if (!key) { toast('请粘贴 API Key'); return; }
-  const cfg = {
-    key: key,
-    url: document.getElementById('apiUrlInput').value.trim() || 'https://api.deepseek.com/anthropic',
-    model: document.getElementById('modelInput').value.trim() || 'deepseek-v4-pro',
+function saveConfig(){
+  const key=document.getElementById('apiKeyInput').value.trim();
+  if(!key){toast('请粘贴 API Key');return;}
+  const cfg={
+    key,model:document.getElementById('modelInput').value.trim()||'deepseek-v4-pro',
+    url:document.getElementById('apiUrlInput').value.trim()||'https://api.deepseek.com/anthropic'
   };
-  localStorage.setItem(CONFIG_KEY, JSON.stringify(cfg));
-  toast('配置已保存 ✓', 'info');
+  localStorage.setItem(CONFIG_KEY,JSON.stringify(cfg));
+  toast('配置已保存','info');
   renderLandingExes();
   checkShowCreateBtn();
-  // auto-open chat if exes exist, otherwise go to create page
-  const exes = loadExes();
-  if (exes.length > 0) {
-    selectEx(exes[0]);
-    showPage('page-chat');
-  } else {
-    showCreate();
-  }
+  const exes=loadExes();
+  if(exes.length>0){selectEx(exes[0]);showPage('page-chat')}
+  else{showCreate()}
 }
-
-function checkShowCreateBtn() {
-  const cfg = getConfig();
-  const exes = loadExes();
-  const hasKey = cfg.key && cfg.key !== DEMO_MODE;
-  const btn = document.getElementById('btnCreateFirst');
-  if (hasKey && exes.length === 0) {
-    btn.style.display = 'block';
-  } else {
-    btn.style.display = 'none';
-  }
+function quickStart(){
+  localStorage.setItem(CONFIG_KEY,JSON.stringify({key:DEMO_MODE,url:'',model:''}));
+  toast('演示模式：可看界面，但不能聊天','info');
+  renderLandingExes(); checkShowCreateBtn();
+  const exes=loadExes();
+  if(exes.length>0){selectEx(exes[0]);showPage('page-chat')}
 }
-
-
-function quickStart() {
-  const cfg = { key: DEMO_MODE, url: '', model: '' };
-  localStorage.setItem(CONFIG_KEY, JSON.stringify(cfg));
-  toast('演示模式：可以查看界面，但发消息不会回复', 'info');
-  renderLandingExes();
-  const exes = loadExes();
-  if (exes.length > 0) {
-    selectEx(exes[0]);
-    showPage('page-chat');
-  }
+function checkShowCreateBtn(){
+  const cfg=getConfig(),btn=document.getElementById('btnCreateFirst');
+  btn.style.display=(cfg.key&&cfg.key!==DEMO_MODE)?'block':'none';
 }
 
 // ============================================================
 //  Exes Storage
 // ============================================================
-function loadExes() {
-  try {
-    return JSON.parse(localStorage.getItem(EXES_KEY)) || [];
-  } catch(e) { return []; }
-}
-
-function saveExes(exes) {
-  localStorage.setItem(EXES_KEY, JSON.stringify(exes));
-}
-
-function renderLandingExes() {
-  const exes = loadExes();
-  const el = document.getElementById('quickExList');
-  if (exes.length === 0) {
-    el.innerHTML = '';
-    return;
-  }
-  el.innerHTML = exes.map(e => {
-    const p = e.profile || {};
-    return `<span class="mini-ex-tag" onclick="selectEx(loadExes().find(x=>x.slug==='${e.slug}'));showPage('page-chat')">💁 ${escHtml(e.name)}</span>`;
-  }).join('');
+function loadExes(){try{return JSON.parse(localStorage.getItem(EXES_KEY))||[]}catch(e){return[]}}
+function saveExes(exes){localStorage.setItem(EXES_KEY,JSON.stringify(exes))}
+function renderLandingExes(){
+  const exes=loadExes(),el=document.getElementById('quickExList');
+  if(!exes.length){el.innerHTML='';return}
+  el.innerHTML=exes.map(e=>`<span class="mini-ex-tag" onclick="selectEx(loadExes().find(x=>x.slug==='${e.slug}'));showPage('page-chat')">${escHtml(e.name)}</span>`).join('');
 }
 
 // ============================================================
 //  Navigation
 // ============================================================
-function showPage(id) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  if (id === 'page-chat') {
-    refreshChatView();
-    document.getElementById('msgInput').focus();
-  }
+  if(id==='page-chat'){refreshChat();document.getElementById('msgInput').focus()}
 }
-
-function goLanding() {
-  showPage('page-landing');
-  renderLandingExes();
-  checkShowCreateBtn();
-}
-
-function showCreate(editSlug) {
+function goLanding(){showPage('page-landing');renderLandingExes();checkShowCreateBtn()}
+function showCreate(){
+  resetCreateForm();
   showPage('page-create');
-  document.getElementById('createTop').textContent = editSlug ? '编辑前任' : '创建前任 AI';
-  if (!editSlug) {
-    document.getElementById('cfName').value = '';
-    document.getElementById('cfDesc').value = '';
-    document.getElementById('cfTags').value = '';
-    document.getElementById('cfChats').value = '';
-    document.getElementById('cfPhrases').value = '';
-    document.getElementById('cfMemory').value = '';
-    document.getElementById('progress').classList.remove('show');
-  }
 }
 
 // ============================================================
-//  Create Ex (LLM-powered persona generation)
+//  Image Upload
 // ============================================================
-async function createEx() {
-  const cfg = getConfig();
-  if (cfg.key === DEMO_MODE) { toast('演示模式无法创建，请先配置 API Key'); return; }
-  if (!cfg.key) { toast('请先在首页配置 API Key'); return; }
+function previewImg(input,previewId,infoId,storeKey){
+  const file=input.files[0];
+  if(!file)return;
+  if(file.size>5*1024*1024){toast('图片不能超过 5MB');return}
+  const reader=new FileReader();
+  reader.onload=function(){
+    imgData[storeKey]=reader.result;
+    const pv=document.getElementById(previewId);
+    pv.innerHTML=`<img src="${reader.result}" alt="">`;
+    document.getElementById(infoId).textContent=file.name+' ('+Math.round(file.size/1024)+'KB)';
+  };
+  reader.readAsDataURL(file);
+}
 
-  const name = document.getElementById('cfName').value.trim();
-  if (!name) { toast('至少填个花名/代号吧'); return; }
+function handleChatLogFile(input){
+  const file=input.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(){
+    const text=reader.result;
+    // store in a global temp variable for use during create
+    window._chatLogContent=text;
+    document.getElementById('chatLogStatus').textContent='已读取: '+file.name+' ('+Math.round(text.length/1024)+'KB) - 已解析 '+estimateMessages(text)+' 条消息';
+  };
+  reader.readAsText(file,'UTF-8');
+}
 
-  const desc = document.getElementById('cfDesc').value.trim();
-  const tags = document.getElementById('cfTags').value.trim();
-  const chats = document.getElementById('cfChats').value.trim();
-  const phrases = document.getElementById('cfPhrases').value.trim();
-  const memory = document.getElementById('cfMemory').value.trim();
+function handleStoryFile(input){
+  const file=input.files[0];
+  if(!file)return;
+  if(file.name.endsWith('.docx')||file.name.endsWith('.pdf')){
+    document.getElementById('storyStatus').textContent='暂不支持 .'+file.name.split('.').pop()+' 格式，请粘贴文本或上传 txt/md';
+    return;
+  }
+  const reader=new FileReader();
+  reader.onload=function(){
+    window._storyContent=reader.result;
+    document.getElementById('storyStatus').textContent='已读取: '+file.name+' ('+Math.round(reader.result.length/1024)+'KB)';
+  };
+  reader.readAsText(file,'UTF-8');
+}
 
-  const btn = document.getElementById('createBtn');
-  const prog = document.getElementById('progress');
-  btn.disabled = true;
-  btn.textContent = '⏳ 生成中...';
+function estimateMessages(text){
+  const lines=text.split('\n').filter(l=>l.trim());
+  const msgLines=lines.filter(l=>/\d{1,2}:\d{2}|^\d{4}[-\/]\d{1,2}[-\/]\d{1,2}/.test(l));
+  return msgLines.length||lines.length;
+}
+
+// ============================================================
+//  WeChat Log Parser (JS)
+// ============================================================
+function parseWeChatLog(text){
+  // Try multiple common formats
+  const lines=text.split('\n').filter(l=>l.trim());
+  const msgs=[];
+  // Format 1: "2023-03-15 21:30:45 昵称\n消息内容"
+  // Format 2: "2023/3/15 21:30 昵称 消息"
+  // Format 3: "昵称 2023-03-15 21:30\n消息内容"
+  // Format 4: "[昵称] 消息" (simple)
+  const re1=/^(\d{4}[-\/]\d{1,2}[-\/]\d{1,2}\s+\d{1,2}:\d{2}(?::\d{2})?)\s+(.+)/;
+  const re2=/^(\d{4}[-\/]\d{1,2}[-\/]\d{1,2}\s+\d{1,2}:\d{2}(?::\d{2})?)\s+(\S+)[:\s](.*)/;
+
+  let currentSender=null,currentMsg=[];
+  for(let i=0;i<lines.length;i++){
+    const line=lines[i].trim();
+    const m1=line.match(re1);
+    const m2=line.match(re2);
+    if(m2){
+      if(currentSender&&currentMsg.length){
+        msgs.push({sender:currentSender,content:currentMsg.join('\n')});
+      }
+      currentSender=m2[2];
+      currentMsg=[m2[3]||''];
+    }else if(m1){
+      currentSender=m1[2];
+      currentMsg=[];
+    }else if(currentSender){
+      currentMsg.push(line);
+    }else{
+      // Check for simple "Name: message" or "Name：message"
+      const simple=line.match(/^(\S{1,20})[：:]\s*(.+)/);
+      if(simple){
+        if(currentSender&&currentMsg.length){
+          msgs.push({sender:currentSender,content:currentMsg.join('\n')});
+        }
+        currentSender=simple[1];
+        currentMsg=[simple[2]];
+      }else if(currentMsg.length){
+        currentMsg.push(line);
+      }
+    }
+  }
+  if(currentSender&&currentMsg.length){
+    msgs.push({sender:currentSender,content:currentMsg.join('\n')});
+  }
+  return msgs;
+}
+
+function filterPartnerMsgs(msgs,exName){
+  // Try to identify partner's messages
+  const senders={};
+  msgs.forEach(m=>{senders[m.sender]=(senders[m.sender]||0)+m.content.length});
+  const names=Object.keys(senders).sort((a,b)=>senders[b]-senders[a]);
+  // Heuristic: partner is the most talkative sender that isn't user-like
+  const userNamePatterns=['我','自己','本人',exName];
+  const partner=names.find(n=>!userNamePatterns.some(p=>n.includes(p)))||names[0];
+  const partnerMsgs=msgs.filter(m=>m.sender===partner);
+  const otherMsgs=msgs.filter(m=>m.sender!==partner);
+  return{partnerName:partner,partnerMsgs,otherMsgs};
+}
+
+// ============================================================
+//  Create Ex
+// ============================================================
+function resetCreateForm(){
+  ['cfName','cfNote','cfAge','cfBirthday','cfMbti','cfJob','cfDesc','cfTags','cfHobbies','cfLikes','cfDislikes','cfPhrases','cfChats','cfMemory'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('cfGender').value='';
+  ['previewExAvatar','previewMyAvatar','previewBg'].forEach(id=>document.getElementById(id).innerHTML='<span class="placeholder">'+(id==='previewExAvatar'?'🙂':id==='previewMyAvatar'?'🧑':'🖼️')+'</span>');
+  ['infoExAvatar','infoMyAvatar','infoBg','chatLogStatus','storyStatus'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=id.startsWith('info')?'未选择':''});
+  ['fileExAvatar','fileMyAvatar','fileBg','fileChatLog','fileStory'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=''});
+  imgData={exAvatarData:null,myAvatarData:null,bgData:null};
+  window._chatLogContent=null;window._storyContent=null;
+  document.getElementById('progress').classList.remove('show');
+}
+
+async function createEx(){
+  const cfg=getConfig();
+  if(cfg.key===DEMO_MODE){toast('演示模式无法创建');return}
+  if(!cfg.key){toast('请先在首页配置 API Key');return}
+
+  const name=document.getElementById('cfName').value.trim();
+  if(!name){toast('至少填个花名/代号吧');return}
+
+  const note=document.getElementById('cfNote').value.trim();
+  const gender=document.getElementById('cfGender').value;
+  const age=document.getElementById('cfAge').value.trim();
+  const birthday=document.getElementById('cfBirthday').value.trim();
+  const mbti=document.getElementById('cfMbti').value.trim();
+  const job=document.getElementById('cfJob').value.trim();
+  const desc=document.getElementById('cfDesc').value.trim();
+  const tags=document.getElementById('cfTags').value.trim();
+  const hobbies=document.getElementById('cfHobbies').value.trim();
+  const likes=document.getElementById('cfLikes').value.trim();
+  const dislikes=document.getElementById('cfDislikes').value.trim();
+  const phrases=document.getElementById('cfPhrases').value.trim();
+
+  // Merge chat content: uploaded file + pasted text
+  let chatContent=document.getElementById('cfChats').value.trim();
+  if(window._chatLogContent){
+    const parsed=parseWeChatLog(window._chatLogContent);
+    const{partnerMsgs}=filterPartnerMsgs(parsed,name);
+    if(partnerMsgs.length>0){
+      const sample=partnerMsgs.slice(0,200).map(m=>'对方: '+m.content).join('\n');
+      chatContent=chatContent?chatContent+'\n\n[上传文件解析结果]\n'+sample:sample;
+      document.getElementById('chatLogStatus').textContent='已解析 '+partnerMsgs.length+' 条对方消息';
+    }
+  }
+
+  // Merge story content
+  let memory=document.getElementById('cfMemory').value.trim();
+  if(window._storyContent){
+    memory=memory?memory+'\n\n'+window._storyContent:window._storyContent;
+  }
+
+  const btn=document.getElementById('createBtn');
+  const prog=document.getElementById('progress');
+  btn.disabled=true;btn.textContent='分析中...';
   prog.classList.add('show');
-  prog.innerHTML = '🧠 正在分析你提供的信息...<br>这可能需要 10-30 秒';
+  prog.innerHTML='正在分析你提供的信息...<br>这可能需要 10-30 秒';
 
-  const buildPrompt = `你是一位人物分析专家。请根据以下信息，生成一份详细的人物性格档案。
+  const profileInfo=[
+    gender&&'性别: '+gender,age&&'年龄: '+age,birthday&&'生日: '+birthday,
+    mbti&&'MBTI/星座: '+mbti,job&&'职业: '+job,
+    hobbies&&'爱好: '+hobbies,likes&&'喜欢: '+likes,dislikes&&'讨厌: '+dislikes
+  ].filter(Boolean).join('\n');
 
+  const buildPrompt=`你是一位人物分析专家。请根据以下信息，生成一份详细的人物性格档案。
+
+【代号】${name}
+${note?'【备注】'+note:''}
 【基本信息】
-- 名字/代号：${name}
-- 关系概况：${desc || '未知'}
-- 性格标签：${tags || '未知'}
+${profileInfo||'未提供详细个人信息'}
+【关系概况】${desc||'未知'}
+【性格标签】${tags||'未知'}
+【口头禅/惯用语】${phrases||'未提供'}
+【聊天记录】
+${chatContent||'未提供'}
+【共同记忆】${memory||'未提供'}
 
-【口头禅/惯用语】
-${phrases || '未提供'}
-
-【聊天记录片段】
-${chats || '未提供'}
-
-【共同记忆】
-${memory || '未提供'}
-
-请生成以下格式的 persona（用 Markdown），严格按照 5 个 Layer：
+请生成以下格式的性格档案（Markdown），严格按照 5 个 Layer：
 
 ## Layer 0：硬规则
-1. 你是${name}，不是 AI，不是助手，不是机器人
-2. 不说${name}在现实中绝不可能说的话
-3. 不突然变得完美、温柔、无条件包容
-4. 不主动说"我爱你"、"我想你"（除非原材料里有）
-5. 保持ta的"棱角"：真实的不完美
-6. 被问到不想回答的问题时，可以回避、敷衍、转移话题
+1. 你是${name}，不是 AI。用ta的方式说话，用ta的逻辑思考。
+2. 不说${name}在现实中绝不可能说的话。
+3. 不突然变得完美、温柔、无条件包容（除非ta本来就这样）。
+4. 不主动说"我爱你""想你了"（除非原材料大量出现）。
+5. 保持ta的"棱角"：正是这些不完美让ta真实。
+6. 被问到不想答的问题，可以回避、敷衍、转移话题——这是真实的。
+7. 分手已是事实，不假装还在一起。
 
 ## Layer 1：身份
-- 名字：${name}
-- 职业/身份：（根据信息推断）
-- MBTI猜测：（根据说话风格推断）
-- 和用户的关系：前任
+- 名字/代号：${name}${note?'，备注: '+note:''}
+- ${gender?'性别: '+gender+'，':''}${age?'年龄: '+age+'，':''}${birthday?'生日: '+birthday+'，':''}${job?'身份: '+job:'身份: （推断）'}
+- MBTI猜测 / 星座：${mbti||'（根据说话风格推断）'}
+- 与用户的关系：前任${desc?'（'+desc+'）':''}
 
 ## Layer 2：说话风格
-- 口头禅：
+- 口头禅：（必须由聊天记录支撑）
 - 语气词偏好：
 - 标点风格：
 - emoji习惯：
 - 消息格式（短句连发/长段落）：
-- 对用户的称呼：
-- 3个典型对话示例：
+- 称呼用户的方式：
+- 3个典型对话示例（贴近真实微信聊天感）：
 
 ## Layer 3：情感模式
 - 依恋类型推断：
 - 表达关心的方式：
 - 生气时的表现：
 - 难过时的表现：
+- 开心时的表现：
 - 雷区/敏感话题：
 
 ## Layer 4：关系行为
@@ -448,295 +626,245 @@ ${memory || '未提供'}
 - 边界和底线：
 
 请确保：
-1. 所有的行为描述都基于提供的信息推断，而非凭空编造
-2. 如果某个维度信息不足，标注「基于有限信息推断」
-3. 口头禅和说话风格必须由聊天记录支撑
-4. 对话示例要贴近真实的微信聊天感
-5. 直接输出 persona 内容，不需要解释`;
+1. 所有行为描述基于提供的信息推断，不凭空编造
+2. 信息不足时标注「基于有限信息推断」
+3. 口头禅和说话风格必须来自聊天记录
+4. 对话示例要真实自然，有微信聊天的感觉
+5. 直接输出 persona，不要多余解释`;
 
-  try {
-    const resp = await callAPI(buildPrompt, '你是一位专业的人物心理分析专家。请直接输出分析结果。');
-    prog.innerHTML = '✅ 生成完成！正在保存...';
+  try{
+    prog.innerHTML='正在调用 AI 分析...';
+    const personaResp=await callAPI(buildPrompt,'你是一位专业的人物心理分析专家。请直接输出分析结果。',null,4096);
+    prog.innerHTML='生成完成！保存中...';
 
-    // Parse persona
-    const persona = resp.trim();
-
-    // Generate slug
-    const slug = name.replace(/[^a-zA-Z0-9一-龥]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '') || 'ex';
-
-    const ex = {
-      slug: slug,
-      name: name,
-      persona: persona,
-      memory: memory || '',
-      profile: {
-        occupation: desc.split(/[,，]/)[0] || '',
-        city: '',
-        mbti: (persona.match(/MBTI[：:]\s*(\w+)/) || [])[1] || '',
-        zodiac: '',
-      },
-      createdAt: new Date().toISOString(),
-      chatHistory: [],
+    const slug=name.replace(/[^a-zA-Z0-9一-龥]/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'')||'ex-'+Date.now();
+    const ex={
+      slug,name,note,persona:personaResp.trim(),memory,
+      profile:{gender,age,birthday,mbti,job,occupation:desc,tags,hobbies,likes,dislikes,city:''},
+      exAvatar:imgData.exAvatarData||null,
+      myAvatar:imgData.myAvatarData||null,
+      bgImage:imgData.bgData||null,
+      chatHistory:[],createdAt:new Date().toISOString()
     };
 
-    // Save to localStorage
-    const exes = loadExes();
-    const idx = exes.findIndex(e => e.slug === slug);
-    if (idx >= 0) {
-      // update existing - keep old chatHistory
-      ex.chatHistory = exes[idx].chatHistory || [];
-      exes[idx] = ex;
-    } else {
-      exes.push(ex);
-    }
+    const exes=loadExes();
+    const idx=exes.findIndex(e=>e.slug===slug);
+    if(idx>=0){ex.chatHistory=exes[idx].chatHistory||[];exes[idx]=ex}else{exes.push(ex)}
     saveExes(exes);
 
-    prog.innerHTML = '🎉 创建成功！即将跳转到聊天...';
-
-    setTimeout(() => {
+    prog.innerHTML='创建成功！跳转中...';
+    setTimeout(()=>{
+      resetCreateForm();
       selectEx(ex);
       showPage('page-chat');
-      btn.disabled = false;
-      btn.textContent = '✨ 生成前任 AI';
-      prog.classList.remove('show');
-    }, 800);
-
-  } catch(e) {
-    prog.innerHTML = '❌ 出错：' + e.message;
-    btn.disabled = false;
-    btn.textContent = '✨ 重试';
+      btn.disabled=false;btn.textContent='✨ 生成前任 AI';prog.classList.remove('show');
+    },600);
+  }catch(e){
+    prog.innerHTML='出错: '+e.message;
+    btn.disabled=false;btn.textContent='✨ 重试';
   }
 }
 
 // ============================================================
-//  Chat Logic
+//  Chat
 // ============================================================
-function selectEx(ex) {
-  currentEx = ex;
-  history = ex.chatHistory || [];
-  document.getElementById('exName').textContent = ex.name;
-  const p = ex.profile || {};
-  const parts = [p.occupation, p.city, p.mbti, p.zodiac].filter(Boolean);
-  document.getElementById('exDetail').textContent = parts.join(' · ') || '前任';
-  refreshChatView();
-  hideExPicker();
-}
+function selectEx(ex){
+  currentEx=ex;history=ex.chatHistory||[];
+  document.getElementById('exName').textContent=ex.note||ex.name;
+  const p=ex.profile||{};
+  const parts=[p.gender,p.age,p.job,p.mbti].filter(Boolean);
+  document.getElementById('exDetail').textContent=parts.join(' · ')||'前任';
 
-function refreshChatView() {
-  const empty = document.getElementById('emptyChat');
-  const msgs = document.getElementById('messages');
-  const typing = document.getElementById('typing');
-
-  empty.style.display = history.length === 0 ? 'flex' : 'none';
-  if (currentEx) {
-    document.getElementById('emptyHint').textContent = `给 ${currentEx.name} 发消息吧`;
+  // Update topbar avatar
+  const av=document.getElementById('topAvatar');
+  if(ex.exAvatar){
+    av.className='ex-avatar-mini';av.innerHTML='';
+    av.style.backgroundImage='url('+ex.exAvatar+')';av.style.backgroundSize='cover';
+  }else{
+    av.className='ex-avatar-mini no-img';av.textContent='🙂';av.style.backgroundImage='';
   }
 
-  // Remove old message rows
-  msgs.querySelectorAll('.msg-row').forEach(el => el.remove());
+  // Chat background
+  const bg=document.getElementById('chatBg');
+  if(ex.bgImage){bg.style.backgroundImage='url('+ex.bgImage+')'}else{bg.style.backgroundImage=''}
 
-  history.forEach(h => {
-    const row = document.createElement('div');
-    row.className = 'msg-row ' + (h.role === 'self' ? 'self' : 'other');
-    const bub = document.createElement('div');
-    bub.className = 'bubble';
-    bub.textContent = h.content;
-    row.appendChild(bub);
-    msgs.insertBefore(row, typing);
+  document.getElementById('msgInput').placeholder='给 '+(ex.note||ex.name)+' 发消息...';
+  refreshChat();hideExPicker();
+}
+
+function refreshChat(){
+  const empty=document.getElementById('emptyChat');
+  const msgs=document.getElementById('messages');
+  empty.style.display=history.length===0?'flex':'none';
+  msgs.querySelectorAll('.msg-row').forEach(el=>el.remove());
+  history.forEach((h,i)=>{
+    const row=document.createElement('div');
+    row.className='msg-row '+(h.role==='self'?'self':'other');
+
+    // Avatar
+    const avEl=document.createElement('div');
+    avEl.className='msg-avatar';
+    if(h.role==='ex'&&currentEx&&currentEx.exAvatar){
+      avEl.innerHTML=`<img src="${currentEx.exAvatar}" style="width:34px;height:34px;border-radius:6px;object-fit:cover">`;
+    }else if(h.role==='self'&&currentEx&&currentEx.myAvatar){
+      avEl.innerHTML=`<img src="${currentEx.myAvatar}" style="width:34px;height:34px;border-radius:6px;object-fit:cover">`;
+    }else{
+      avEl.classList.add('no-img');
+    }
+    row.appendChild(avEl);
+
+    const wrap=document.createElement('div');
+    wrap.className='bubble-wrap';
+    const bub=document.createElement('div');
+    bub.className='bubble';
+    bub.textContent=h.content;
+    wrap.appendChild(bub);
+    row.appendChild(wrap);
+    msgs.appendChild(row);
   });
-
   scrollBottom();
 }
 
-async function sendMsg() {
-  if (isLoading) return;
-  if (!currentEx) { toast('请先选择一个前任'); return; }
+async function sendMsg(){
+  if(isLoading)return;
+  if(!currentEx){toast('请先选择一个前任');return}
+  const cfg=getConfig();
+  if(cfg.key===DEMO_MODE){toast('演示模式无法聊天，请先配置 API Key');return}
+  if(!cfg.key){toast('请先在首页配置 API Key');return}
 
-  const cfg = getConfig();
-  if (cfg.key === DEMO_MODE) { toast('演示模式无法聊天，请先配置 API Key'); return; }
-  if (!cfg.key) { toast('请先在首页配置 API Key'); return; }
+  const text=document.getElementById('msgInput').value.trim();
+  if(!text)return;
+  document.getElementById('msgInput').value='';
+  document.getElementById('msgInput').style.height='auto';
 
-  const text = document.getElementById('msgInput').value.trim();
-  if (!text) return;
+  // Split into sentences for natural rhythm
+  addMsg('self',text);
+  isLoading=true;
 
-  document.getElementById('msgInput').value = '';
-  addMsg('self', text);
-  setLoading(true);
+  const systemPrompt=currentEx.persona
+    +(currentEx.memory?'\n\n---\n## 共同记忆\n'+currentEx.memory:'')
+    +'\n\n---\n## 对话规则\n'
+    +'你现在就是'+currentEx.name+'本人，不是AI。用ta的口语和节奏说话。\n'
+    +'回复要简短自然，像真人微信聊天。保持ta的棱角和真实感。\n'
+    +'如果信息不足（问了你不知道的事），用ta的方式回应（敷衍/反问/转移话题）。\n'
+    +'一次回复2-5个短句，可以连发。用中文回复。';
 
-  // Build system prompt from persona
-  const systemPrompt = currentEx.persona
-    + (currentEx.memory ? '\n\n---\n## 共同记忆\n' + currentEx.memory : '')
-    + '\n\n---\n## 对话规则\n'
-    + `请完全以上述 persona 的身份回复。你就是${currentEx.name}，不是 AI 助手。\n`
-    + '保持 ta 的棱角、说话风格和真实感。回复要简短自然，像真人微信聊天。\n'
-    + '用 ta 的语气词、口头禅、标点习惯。不要突然变得完美或温柔。\n'
-    + '用中文回复。';
-
-  // Build messages array (last 20 turns)
-  const apiMessages = [];
-  const recent = history.slice(-40); // 20 turns * 2
-  for (const h of recent) {
-    if (h === recent[recent.length - 1]) continue; // skip the one we just added (it's the current user msg)
-    apiMessages.push({
-      role: h.role === 'ex' ? 'assistant' : 'user',
-      content: h.content,
-    });
+  const apiMessages=[],recent=history.slice(-40);
+  for(let i=0;i<recent.length;i++){
+    const h=recent[i];
+    if(i===recent.length-1&&h.role==='self')continue;
+    apiMessages.push({role:h.role==='ex'?'assistant':'user',content:h.content});
   }
-  apiMessages.push({ role: 'user', content: text });
+  apiMessages.push({role:'user',content:text});
 
-  try {
-    const reply = await callAPI(null, systemPrompt, apiMessages);
-    if (reply) {
-      addMsg('ex', reply);
+  try{
+    const reply=await callAPI(null,systemPrompt,apiMessages,1024);
+    if(reply){
+      // Split reply into natural sentences for multi-bubble effect
+      const sentences=splitIntoSentences(reply);
+      for(const s of sentences){
+        if(s.trim())addMsg('ex',s.trim());
+      }
     }
-  } catch(e) {
-    addMsg('ex', '😞 ' + e.message);
-  } finally {
-    setLoading(false);
-  }
+  }catch(e){addMsg('ex','(出错: '+e.message+')')}
+  finally{isLoading=false}
 }
 
-function addMsg(role, content) {
-  history.push({ role, content, time: Date.now() });
-  // Persist to storage
-  if (currentEx) {
-    currentEx.chatHistory = history;
-    const exes = loadExes();
-    const idx = exes.findIndex(e => e.slug === currentEx.slug);
-    if (idx >= 0) {
-      exes[idx].chatHistory = history;
-      saveExes(exes);
+function splitIntoSentences(text){
+  // Split on Chinese/English sentence-ending punctuation, keeping the punctuation
+  const parts=text.split(/(?<=[。！？；\.!\?;\n])/);
+  const result=[];
+  let buf='';
+  for(const p of parts){
+    buf+=p;
+    if(/[。！？；\.!\?;\n]$/.test(p)||buf.length>50){
+      result.push(buf.trim());buf='';
     }
   }
-  refreshChatView();
-  scrollBottom();
+  if(buf.trim())result.push(buf.trim());
+  return result.length?result:[text];
 }
 
-function scrollBottom() {
-  requestAnimationFrame(() => {
-    const m = document.getElementById('messages');
-    m.scrollTop = m.scrollHeight;
-  });
+function addMsg(role,content){
+  history.push({role,content,time:Date.now()});
+  if(currentEx){currentEx.chatHistory=history;const exes=loadExes();const i=exes.findIndex(e=>e.slug===currentEx.slug);if(i>=0){exes[i].chatHistory=history;saveExes(exes)}}
+  refreshChat();scrollBottom();
 }
 
-function setLoading(v) {
-  isLoading = v;
-  document.getElementById('typing').classList.toggle('active', v);
-  document.getElementById('sendBtn').disabled = v;
-  if (v) scrollBottom();
+function scrollBottom(){
+  requestAnimationFrame(()=>{const m=document.getElementById('messages');m.scrollTop=m.scrollHeight});
 }
 
 // ============================================================
-//  API Call (browser -> DeepSeek / Anthropic compatible)
+//  API Call
 // ============================================================
-async function callAPI(userPrompt, systemPrompt, messages) {
-  const cfg = getConfig();
-  if (!cfg.key || cfg.key === DEMO_MODE) throw new Error('未配置 API Key');
+async function callAPI(userPrompt,systemPrompt,messages,maxTokens){
+  const cfg=getConfig();
+  if(!cfg.key||cfg.key===DEMO_MODE)throw new Error('未配置 API Key');
 
-  const isCreateMode = !!userPrompt; // if userPrompt is set, we're generating persona
+  const body={model:cfg.model,max_tokens:maxTokens||1024,messages:userPrompt?[{role:'user',content:userPrompt}]:(messages||[{role:'user',content:'你好'}])};
+  if(systemPrompt)body.system=systemPrompt;
 
-  const body = {
-    model: cfg.model,
-    max_tokens: isCreateMode ? 4096 : 1024,
-    messages: isCreateMode
-      ? [{ role: 'user', content: userPrompt }]
-      : (messages || [{ role: 'user', content: '你好' }]),
-  };
-
-  if (systemPrompt) {
-    body.system = systemPrompt;
-  }
-
-  const resp = await fetch(`${cfg.url}/v1/messages`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': cfg.key,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify(body),
-  });
-
-  if (!resp.ok) {
-    const err = await resp.text().catch(() => 'Unknown');
-    throw new Error(`API ${resp.status}: ${err.slice(0, 200)}`);
-  }
-
-  const data = await resp.json();
-  let text = '';
-  for (const block of (data.content || [])) {
-    if (block.type === 'text') text += block.text;
-  }
+  const resp=await fetch(`${cfg.url}/v1/messages`,{method:'POST',headers:{'Content-Type':'application/json','x-api-key':cfg.key,'anthropic-version':'2023-06-01'},body:JSON.stringify(body)});
+  if(!resp.ok){const err=await resp.text().catch(()=>'Unknown');throw new Error(`API ${resp.status}: ${err.slice(0,200)}`)}
+  const data=await resp.json();
+  let text='';
+  for(const block of(data.content||[])){if(block.type==='text')text+=block.text}
   return text.trim();
 }
 
 // ============================================================
-//  Ex Picker Modal
+//  Emoji Picker
 // ============================================================
-function showExPicker() {
-  const exes = loadExes();
-  const list = document.getElementById('exList');
-  const subtitle = document.getElementById('pickerSubtitle');
-  subtitle.textContent = exes.length ? `共 ${exes.length} 个` : '还没有创建前任';
+function buildEmojiPicker(){
+  const emojis=['😀','😂','🤣','😅','😊','😍','🥰','😘','😜','😝','🤪','😎','🤩','🥳','😢','😭','😤','😡','🥺','😳','🤔','🙄','😏','😬','👍','👎','🙏','💪','🤝','❤️','💔','🔥','⭐','🌸','🌙','💩','🐶','🐱','🎉','🎂','🍰','☕','🍺','💤','❓','❗','💯','👋','🫂','🤗','🫡'];
+  const picker=document.getElementById('emojiPicker');
+  picker.innerHTML=emojis.map(e=>`<span onclick="insertEmoji('${e}')">${e}</span>`).join('');
+}
+function toggleEmoji(){
+  document.getElementById('emojiPicker').classList.toggle('show');
+}
+function insertEmoji(emoji){
+  const ta=document.getElementById('msgInput');ta.value+=emoji;ta.focus();
+  document.getElementById('emojiPicker').classList.remove('show');
+}
 
-  list.innerHTML = exes.map(e => {
-    const p = e.profile || {};
-    const desc = [p.occupation, p.mbti].filter(Boolean).join(' · ') || '前任';
-    const sel = currentEx && currentEx.slug === e.slug ? '✓' : '';
-    return `<div class="ex-item">
-      <div class="ex-info" onclick="selectEx(loadExes().find(x=>x.slug==='${e.slug}'));">
-        <div class="ex-name">${escHtml(e.name)}</div>
+// ============================================================
+//  Ex Picker
+// ============================================================
+function showExPicker(){
+  const exes=loadExes(),list=document.getElementById('exList');
+  document.getElementById('pickerSubtitle').textContent=exes.length?`共 ${exes.length} 个`:'还没有创建前任';
+  list.innerHTML=exes.map(e=>{
+    const p=e.profile||{};
+    const desc=[p.gender,p.age,p.job,p.mbti].filter(Boolean).join(' · ')||'前任';
+    const sel=currentEx&&currentEx.slug===e.slug?'✓':'';
+    return`<div class="ex-item">
+      <div class="ex-info" onclick="selectEx(loadExes().find(x=>x.slug==='${e.slug}'));" style="flex:1">
+        <div class="ex-name">${escHtml(e.note||e.name)}</div>
         <div class="ex-desc">${escHtml(desc)}</div>
       </div>
-      ${sel ? '<span style="color:#07C160;font-size:18px">✓</span>' : ''}
+      ${sel?'<span style="color:#07C160;font-size:18px;margin-right:8px">✓</span>':''}
       <span class="del" onclick="deleteEx('${e.slug}')">删除</span>
     </div>`;
   }).join('');
-
-  if (exes.length === 0) {
-    list.innerHTML = '<div style="text-align:center;padding:30px;color:#999">还没有创建前任<br><br><button class="btn btn-primary" style="width:auto;padding:10px 30px" onclick="hideExPicker();showCreate()">创建第一个</button></div>';
-  }
-
+  if(!exes.length){list.innerHTML='<div style="text-align:center;padding:30px;color:#999">还没有创建前任<br><br><button class="btn btn-primary" style="width:auto;padding:10px 30px" onclick="hideExPicker();showCreate()">创建第一个</button></div>'}
   document.getElementById('pickerOverlay').classList.add('show');
 }
-
-function hideExPicker(e) {
-  if (e && e.target !== document.getElementById('pickerOverlay')) return;
-  document.getElementById('pickerOverlay').classList.remove('show');
-}
-
-function deleteEx(slug) {
-  if (!confirm('确定删除这个前任？所有聊天记录都会被清掉。')) return;
-  let exes = loadExes();
-  exes = exes.filter(e => e.slug !== slug);
-  saveExes(exes);
-  if (currentEx && currentEx.slug === slug) {
-    currentEx = null;
-    history = [];
-    goLanding();
-  }
-  showExPicker();
-  renderLandingExes();
-  checkShowCreateBtn();
+function hideExPicker(e){if(e&&e.target!==document.getElementById('pickerOverlay'))return;document.getElementById('pickerOverlay').classList.remove('show')}
+function deleteEx(slug){
+  if(!confirm('确定删除这个前任？所有聊天记录都会被清掉。'))return;
+  let exes=loadExes();exes=exes.filter(e=>e.slug!==slug);saveExes(exes);
+  if(currentEx&&currentEx.slug===slug){currentEx=null;history=[];goLanding()}
+  showExPicker();renderLandingExes();
 }
 
 // ============================================================
 //  Utils
 // ============================================================
 let _toastTimer;
-function toast(msg, type) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.className = 'toast show' + (type === 'info' ? ' info' : '');
-  clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(() => el.className = 'toast', 3000);
-}
-
-function escHtml(s) {
-  const d = document.createElement('div');
-  d.textContent = s;
-  return d.innerHTML;
-}
+function toast(msg,type){const el=document.getElementById('toast');el.textContent=msg;el.className='toast show'+(type==='info'?' info':'');clearTimeout(_toastTimer);_toastTimer=setTimeout(()=>el.className='toast',3000)}
+function escHtml(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
 </script>
 </body>
 </html>
