@@ -78,8 +78,8 @@
   .emoji-picker span{font-size:24px;cursor:pointer;padding:4px;border-radius:6px}
   .emoji-picker span:active{background:#eee}
 
-  /* === Create Page === */
-  .create-page{background:var(--bg)}
+  /* === Create Page & Manage Page === */
+  .create-page,.manage-page{background:var(--bg)}
   .createtop{background:var(--topbar);color:#fff;padding:12px 16px;font-size:17px;font-weight:600;text-align:center;flex-shrink:0;padding-top:max(12px,env(safe-area-inset-top))}
   .create-form{flex:1;padding:20px;max-width:520px;margin:0 auto;min-height:0;width:100%;overflow-y:auto;-webkit-overflow-scrolling:touch}
   .create-form h3{font-size:15px;margin:18px 0 6px;color:#555;border-bottom:1px solid #eee;padding-bottom:4px}
@@ -162,6 +162,7 @@
       <div class="name" id="exName">前任</div>
     </div>
     <button class="act-btn" onclick="showExPicker()">切换</button>
+    <button class="act-btn" onclick="showManage()">管理</button>
     <button class="act-btn" onclick="showCreate()">+新建</button>
   </div>
   <div class="messages" id="messages">
@@ -280,6 +281,87 @@
   </div>
 </div>
 
+<!-- ========== Manage Page ========== -->
+<div class="page manage-page" id="page-manage">
+  <div class="createtop" style="display:flex;align-items:center;gap:12px;text-align:left">
+    <span onclick="goChat()" style="cursor:pointer;font-size:18px">←</span>
+    <span>管理前任</span>
+  </div>
+  <div class="create-form" id="manageFormEl">
+    <p style="font-size:13px;color:#999;margin-bottom:12px">正在管理：<strong id="manageExLabel">...</strong>。已有的信息会显示在下方，你可以补充新的内容。留空的字段不会覆盖已有信息。</p>
+
+    <h3>📝 补充基本信息</h3>
+    <div class="row">
+      <div><label>年龄</label><input type="number" id="mgAge" placeholder="不改就留空" min="10" max="99"></div>
+      <div><label>生日</label><input type="text" id="mgBirthday" placeholder="不改就留空" maxlength="20"></div>
+    </div>
+    <div class="row">
+      <div><label>MBTI / 星座</label><input type="text" id="mgMbti" placeholder="不改就留空" maxlength="20"></div>
+      <div><label>职业</label><input type="text" id="mgJob" placeholder="不改就留空"></div>
+    </div>
+    <label>爱好</label><input type="text" id="mgHobbies" placeholder="不改就留空">
+    <label>喜欢的东西</label><input type="text" id="mgLikes" placeholder="不改就留空">
+    <label>讨厌的东西</label><input type="text" id="mgDislikes" placeholder="不改就留空">
+    <label>口头禅 / 惯用语</label><input type="text" id="mgPhrases" placeholder="不改就留空">
+
+    <h3>📷 更新头像 & 背景</h3>
+    <div class="row">
+      <div style="flex:1">
+        <label>ta 的新头像</label>
+        <div class="img-upload">
+          <div class="preview" id="mgPreviewExAvatar"><span class="placeholder">🙂</span></div>
+          <div>
+            <div class="info" id="mgInfoExAvatar">不改就留空</div>
+            <button class="upload-btn" onclick="document.getElementById('mgFileExAvatar').click()">选择图片</button>
+            <input type="file" id="mgFileExAvatar" accept="image/*" onchange="previewImg(this,'mgPreviewExAvatar','mgInfoExAvatar','mgExAvatarData')">
+          </div>
+        </div>
+      </div>
+      <div style="flex:1">
+        <label>我的新头像</label>
+        <div class="img-upload">
+          <div class="preview" id="mgPreviewMyAvatar"><span class="placeholder">🧑</span></div>
+          <div>
+            <div class="info" id="mgInfoMyAvatar">不改就留空</div>
+            <button class="upload-btn" onclick="document.getElementById('mgFileMyAvatar').click()">选择图片</button>
+            <input type="file" id="mgFileMyAvatar" accept="image/*" onchange="previewImg(this,'mgPreviewMyAvatar','mgInfoMyAvatar','mgMyAvatarData')">
+          </div>
+        </div>
+      </div>
+    </div>
+    <label>新聊天背景</label>
+    <div class="img-upload">
+      <div class="preview" id="mgPreviewBg"><span class="placeholder">🖼️</span></div>
+      <div>
+        <div class="info" id="mgInfoBg">不改就留空</div>
+        <button class="upload-btn" onclick="document.getElementById('mgFileBg').click()">选择图片</button>
+        <input type="file" id="mgFileBg" accept="image/*" onchange="previewImg(this,'mgPreviewBg','mgInfoBg','mgBgData')">
+      </div>
+    </div>
+
+    <h3>💬 补充聊天记录</h3>
+    <label>上传更多微信/QQ 聊天记录文件</label>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+      <button class="upload-btn" onclick="document.getElementById('mgFileChatLog').click()">📎 上传文件</button>
+      <input type="file" id="mgFileChatLog" accept=".txt,.html,.csv,.json" onchange="handleChatLogFile(this)" style="display:none">
+      <span class="file-status" id="mgChatLogStatus"></span>
+    </div>
+    <label>或粘贴新的聊天记录</label>
+    <textarea id="mgChats" rows="4" placeholder="粘贴新的聊天记录..."></textarea>
+
+    <h3>🎯 补充关系记忆</h3>
+    <label>新的共同经历</label>
+    <textarea id="mgMemory" rows="2" placeholder="新增的记忆..."></textarea>
+    <label>新的关键事件</label>
+    <textarea id="mgKeyEvents" rows="2" placeholder="新增的关键事件..."></textarea>
+
+    <button class="btn btn-primary" id="mgSupplementBtn" onclick="supplementEx()">✨ 合并 & 重新生成</button>
+    <div class="progress-box" id="mgProgress"></div>
+    <button class="btn btn-secondary" onclick="goChat()" style="margin-top:6px">取消</button>
+    <div style="height:40px"></div>
+  </div>
+</div>
+
 <!-- ========== Ex Picker Modal ========== -->
 <div class="overlay" id="pickerOverlay" onclick="hideExPicker(event)">
   <div class="sheet" onclick="event.stopPropagation()">
@@ -322,6 +404,7 @@ let currentEx=null;
 let history=[];
 let isLoading=false;
 let imgData={exAvatarData:null,myAvatarData:null,bgData:null};
+let mgImgData={mgExAvatarData:null,mgMyAvatarData:null,mgBgData:null};
 
 // ============================================================
 //  Init
@@ -405,6 +488,164 @@ async function goLanding(){showPage('page-landing');await renderLandingExes();ch
 function showCreate(){
   resetCreateForm();
   showPage('page-create');
+}
+function goChat(){showPage('page-chat')}
+
+// ============================================================
+//  Manage Ex
+// ============================================================
+function resetManageForm(){
+  ['mgAge','mgBirthday','mgMbti','mgJob','mgHobbies','mgLikes','mgDislikes','mgPhrases','mgChats','mgMemory','mgKeyEvents'].forEach(id=>document.getElementById(id).value='');
+  ['mgPreviewExAvatar','mgPreviewMyAvatar','mgPreviewBg'].forEach(id=>document.getElementById(id).innerHTML='<span class="placeholder">'+(id==='mgPreviewExAvatar'?'🙂':id==='mgPreviewMyAvatar'?'🧑':'🖼️')+'</span>');
+  ['mgInfoExAvatar','mgInfoMyAvatar','mgInfoBg','mgChatLogStatus'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=id.startsWith('mgInfo')?'不改就留空':''});
+  ['mgFileExAvatar','mgFileMyAvatar','mgFileBg','mgFileChatLog'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=''});
+  mgImgData={mgExAvatarData:null,mgMyAvatarData:null,mgBgData:null};
+  window._chatLogContent=null;
+  document.getElementById('mgProgress').classList.remove('show');
+  const btn=document.getElementById('mgSupplementBtn');
+  btn.disabled=false;btn.textContent='✨ 合并 & 重新生成';
+}
+
+function showManage(){
+  if(!currentEx){toast('请先选择一个前任');return}
+  resetManageForm();
+  document.getElementById('manageExLabel').textContent=currentEx.note||currentEx.name;
+
+  // Pre-fill existing info as hints
+  const p=currentEx.profile||{};
+  ['Age','Birthday','Mbti','Job','Hobbies','Likes','Dislikes'].forEach(k=>{
+    const el=document.getElementById('mg'+k);
+    if(el&&p[k.toLowerCase()])el.placeholder='已有: '+p[k.toLowerCase()];
+  });
+  const phraseEl=document.getElementById('mgPhrases');
+  if(phraseEl&&currentEx.persona){
+    const m=currentEx.persona.match(/口头禅[：:]\s*(.+)/);
+    if(m)phraseEl.placeholder='已有: '+m[1].slice(0,50);
+  }
+
+  // Show existing avatars if any
+  if(currentEx.exAvatar){
+    document.getElementById('mgPreviewExAvatar').innerHTML=`<img src="${currentEx.exAvatar}" alt="">`;
+    document.getElementById('mgInfoExAvatar').textContent='已有头像';
+  }
+  if(currentEx.myAvatar){
+    document.getElementById('mgPreviewMyAvatar').innerHTML=`<img src="${currentEx.myAvatar}" alt="">`;
+    document.getElementById('mgInfoMyAvatar').textContent='已有头像';
+  }
+  if(currentEx.bgImage){
+    document.getElementById('mgPreviewBg').innerHTML=`<img src="${currentEx.bgImage}" alt="">`;
+    document.getElementById('mgInfoBg').textContent='已有背景';
+  }
+
+  showPage('page-manage');
+}
+
+async function supplementEx(){
+  const cfg=getConfig();
+  if(cfg.key===DEMO_MODE){toast('演示模式无法操作');return}
+  if(!cfg.key){toast('请先配置 API Key');return}
+  if(!currentEx){toast('请先选择一个前任');return}
+
+  // Collect NEW info only (non-empty fields)
+  const age=document.getElementById('mgAge').value.trim();
+  const birthday=document.getElementById('mgBirthday').value.trim();
+  const mbti=document.getElementById('mgMbti').value.trim();
+  const job=document.getElementById('mgJob').value.trim();
+  const hobbies=document.getElementById('mgHobbies').value.trim();
+  const likes=document.getElementById('mgLikes').value.trim();
+  const dislikes=document.getElementById('mgDislikes').value.trim();
+  const phrases=document.getElementById('mgPhrases').value.trim();
+  const newChats=document.getElementById('mgChats').value.trim();
+  const newMemory=document.getElementById('mgMemory').value.trim();
+  const newKeyEvents=document.getElementById('mgKeyEvents').value.trim();
+
+  // Merge old + new
+  const p=currentEx.profile||{};
+  const mergedAge=age||p.age||'';
+  const mergedBirthday=birthday||p.birthday||'';
+  const mergedMbti=mbti||p.mbti||'';
+  const mergedJob=job||p.job||'';
+  const mergedHobbies=hobbies||p.hobbies||'';
+  const mergedLikes=likes||p.likes||'';
+  const mergedDislikes=dislikes||p.dislikes||'';
+  const mergedPhrases=phrases||'';
+  const mergedChats=(currentEx._rawChats||'')+(newChats?'\n\n'+newChats:'');
+  const mergedMemory=(currentEx.memory||'')+(newMemory?'\n\n'+newMemory:'')+(newKeyEvents?'\n\n【关键事件】\n'+newKeyEvents:'');
+
+  // Also parse uploaded chat file
+  let finalChats=mergedChats;
+  if(window._chatLogContent){
+    const parsed=parseWeChatLog(window._chatLogContent);
+    const{partnerMsgs}=filterPartnerMsgs(parsed,currentEx.name);
+    if(partnerMsgs.length>0){
+      const sample=partnerMsgs.slice(0,200).map(m=>'对方: '+m.content).join('\n');
+      finalChats=finalChats?finalChats+'\n\n[补充上传]\n'+sample:sample;
+    }
+  }
+
+  const hasNew=(age||birthday||mbti||job||hobbies||likes||dislikes||phrases||newChats||newMemory||newKeyEvents||mgImgData.mgExAvatarData||mgImgData.mgMyAvatarData||mgImgData.mgBgData);
+  if(!hasNew){toast('没有新内容，请至少填一个字段');return}
+
+  const btn=document.getElementById('mgSupplementBtn');
+  const prog=document.getElementById('mgProgress');
+  btn.disabled=true;btn.textContent='合并中...';
+  prog.classList.add('show');
+  prog.innerHTML='正在重新分析...<br>大概需要 10-30 秒';
+
+  const profileInfo_=[
+    currentEx.profile?.gender?'性别'+currentEx.profile.gender:'',
+    mergedAge&&'年龄'+mergedAge,mergedBirthday&&'生日'+mergedBirthday,
+    mergedMbti&&'MBTI/星座'+mergedMbti,mergedJob&&'职业'+mergedJob,
+    currentEx.profile?.tags?'性格标签'+currentEx.profile.tags:'',
+    mergedHobbies&&'爱好'+mergedHobbies,mergedLikes&&'喜欢'+mergedLikes,mergedDislikes&&'讨厌'+mergedDislikes
+  ].filter(Boolean).join('；');
+
+  const buildPrompt=`你之前已经认识这个人了，但现在用户提供了更多信息。请在【已有信息+新补充】的基础上，更新人物性格档案。只基于信息，不编造。
+
+【已有】代号：${currentEx.name}${currentEx.note?'（备注: '+currentEx.note+')':''}
+${profileInfo_?'基本信息：'+profileInfo_:''}
+${currentEx.profile?.occupation?'关系概况：'+currentEx.profile.occupation:''}
+${mergedPhrases||(currentEx.persona||'').match(/口头禅[：:].+/)?.[0]||''}
+${finalChats?'聊天记录（已有+新增）：\n'+finalChats.slice(0,3000):''}
+${mergedMemory?'共同记忆/关键事件（已有+新增）：\n'+mergedMemory.slice(0,2000):''}
+
+请生成更新后的 persona（5 layers），格式同之前。直接输出。`;
+
+  try{
+    prog.innerHTML='正在调用 AI...';
+    const personaResp=await callAPI(buildPrompt,'你是一位专业的人物心理分析专家。请基于新补充的信息更新人物档案。直接输出 persona。',null,4096);
+    prog.innerHTML='更新完成！保存中...';
+
+    // Update ex in DB, keeping chat history
+    currentEx.persona=personaResp.trim();
+    currentEx.memory=mergedMemory||currentEx.memory;
+    currentEx._rawChats=finalChats||currentEx._rawChats;
+    // Merge profile fields
+    if(age)currentEx.profile.age=age;
+    if(birthday)currentEx.profile.birthday=birthday;
+    if(mbti)currentEx.profile.mbti=mbti;
+    if(job)currentEx.profile.job=job;
+    if(hobbies)currentEx.profile.hobbies=hobbies;
+    if(likes)currentEx.profile.likes=likes;
+    if(dislikes)currentEx.profile.dislikes=dislikes;
+    // Update images if new ones provided
+    if(mgImgData.mgExAvatarData)currentEx.exAvatar=mgImgData.mgExAvatarData;
+    if(mgImgData.mgMyAvatarData)currentEx.myAvatar=mgImgData.mgMyAvatarData;
+    if(mgImgData.mgBgData)currentEx.bgImage=mgImgData.mgBgData;
+
+    await saveEx(currentEx);
+    prog.innerHTML='更新成功！跳转中...';
+    setTimeout(()=>{
+      resetManageForm();
+      selectEx(currentEx);
+      showPage('page-chat');
+      btn.disabled=false;btn.textContent='✨ 合并 & 重新生成';
+      prog.classList.remove('show');
+    },600);
+  }catch(e){
+    prog.innerHTML='出错: '+e.message;
+    btn.disabled=false;btn.textContent='✨ 重试';
+  }
 }
 
 // ============================================================
@@ -659,7 +900,7 @@ ${memory?'——从关键事件推断——':''}
       exAvatar:imgData.exAvatarData||null,
       myAvatar:imgData.myAvatarData||null,
       bgImage:imgData.bgData||null,
-      chatHistory:[],createdAt:new Date().toISOString()
+      _rawChats:chatContent||'',chatHistory:[],createdAt:new Date().toISOString()
     };
 
     const exes=await loadExes();
