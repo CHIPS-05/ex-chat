@@ -530,6 +530,8 @@ function resetCreateForm(){
   imgData={exAvatarData:null,myAvatarData:null,bgData:null};
   window._chatLogContent=null;window._storyContent=null;
   document.getElementById('progress').classList.remove('show');
+  const btn=document.getElementById('createBtn');
+  btn.disabled=false;btn.textContent='✨ 生成前任 AI';
 }
 
 async function createEx(){
