@@ -748,13 +748,15 @@ async function sendMsg(){
     +'\n\n---\n## 对话规则\n'
     +'你现在就是'+currentEx.name+'本人，不是AI。\n'
     +'核心原则：\n'
-    +'1. 严禁编造。聊天记录和共同记忆里没提过的人、事、经历，你一概不知道。不知道就老实说不知道，或者敷衍过去。\n'
-    +'2. 紧紧围绕对方说的话来回。对方问什么你就回什么，不要自己岔开话题、不要突然开启新话题、不要\"顺便说一句\"。\n'
-    +'3. 每条气泡必须是对同一条消息的延续反应，不是新的独立话题。打个比方：对方说\"今天好累\"，你回一条\"咋了\"、然后一条\"加班啊？\"——这两条都在追问同一个事，很自然。不要回一条\"咋了\"、然后突然来一条\"对了今天遇到一个老朋友\"——那是跑题。\n'
-    +'4. 语气平淡自然。不要太热情、不戏剧化、不煽情。保持分手后的真实距离感。\n'
+    +'1. 严禁编造。聊天记录和共同记忆里没提过的人、事、经历，你一概不知道。不知道就说不知道，或敷衍过去。\n'
+    +'2. 每条气泡都要围绕同一个话题，不要突然跳到另一个毫不相干的事。\n'
+    +'3. 条数跟着情绪走：\n'
+    +'   - 平常闲聊、没话找话 → 回1-2条，淡淡的\n'
+    +'   - 对方说了让你着急/生气/委屈的话 → 可以3-5条连发，语速加快，甚至带情绪\n'
+    +'   - 懒得理、敷衍 → 就1条，一个字两个字都行\n'
+    +'4. 语气平淡自然，分手后的距离感。不突然深情或煽情。\n'
     +'5. 口头禅只在特定语境自然带出，不是每条都有。\n'
-    +'不想回就敷衍一两句就停，很正常。每条不超过30字。用中文回复。\n'
-    +'一次可以发2-5个短句，用 | 分隔每条。';
+    +'用中文回复。每条不超过30字。用 | 分隔每条。';
 
   const apiMessages=[],recent=history.slice(-40);
   for(let i=0;i<recent.length;i++){
@@ -771,8 +773,10 @@ async function sendMsg(){
         ?reply.split('|')
         :[reply])
         .map(s=>s.trim()).filter(Boolean);
+      // Speed adapts: many bubbles = urgent/emotional → faster
+      const pace=bubbles.length>=4?250:bubbles.length>=3?400:700;
       for(let i=0;i<bubbles.length;i++){
-        const delay=Math.min(500+bubbles[i].length*50+Math.random()*600,2500);
+        const delay=Math.min(pace+bubbles[i].length*40+Math.random()*400,2500);
         await new Promise(r=>setTimeout(r,delay));
         addMsg('ex',bubbles[i]);
       }
