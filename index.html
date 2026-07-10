@@ -969,7 +969,11 @@ function refreshChat(){
   scrollBottom();
 }
 
-async function sendMsg(){
+// ── Batch send: wait for user to stop typing before replying ──
+let _sendTimer=null;
+let _pendingMessages=[];
+
+function sendMsg(){
   if(isLoading)return;
   if(!currentEx){toast('请先选择一个前任');return}
   const cfg=getConfig();
@@ -981,22 +985,44 @@ async function sendMsg(){
   document.getElementById('msgInput').value='';
   document.getElementById('msgInput').style.height='auto';
 
-  // Split into sentences for natural rhythm
   addMsg('self',text);
+  _pendingMessages.push(text);
+
+  // Reset timer: if user sends more within 3s, we batch them together
+  clearTimeout(_sendTimer);
+  _sendTimer=setTimeout(async()=>{
+    const msgs=_pendingMessages;
+    _pendingMessages=[];
+    await doReply(msgs);
+  },3000);
+}
+
+function addMsg(role,content){
+  history.push({role,content,time:Date.now()});
+  if(currentEx){currentEx.chatHistory=history;updateExChat(currentEx.slug,history)}
+  refreshChat();scrollBottom();
+}
+
+async function doReply(messages){
+  if(!currentEx||isLoading)return;
+  const cfg=getConfig();
+  if(cfg.key===DEMO_MODE||!cfg.key)return;
+
   isLoading=true;
+  const combinedText=messages.join('\n');
 
   const systemPrompt=currentEx.persona
     +(currentEx.memory?'\n\n---\n## 共同记忆\n'+currentEx.memory:'')
     +'\n\n---\n## 对话规则\n'
     +'你现在就是'+currentEx.name+'本人。\n'
     +'1. 严禁编造。没在聊天记录和记忆里出现过的人事物，你一概不知道。\n'
-    +'2. 只回对方刚说的话，不岔开话题。\n'
+    +'2. 只回对方说的话，不岔开话题。\n'
     +'3. 语气平淡，分手后的距离感。\n'
-    +'4. 标点随便。真人聊天基本不打句号，逗号随缘，空格当停顿就行。问句不打问号也正常。别写得像印刷体。\n'
-    +'4. 条数跟情绪走：平淡→1-2条 / 急了→3-5条 / 懒得理→1条。\n'
+    +'4. 标点随便。真人聊天基本不打句号，逗号随缘，空格当停顿。别写得像印刷体。\n'
+    +'5. 条数跟情绪走：平淡→1-2条 / 急了→3-5条 / 懒得理→1条。\n'
     +'\n'
     +'【发送格式——必须遵守！！！】\n'
-    +'每条消息独占一行，用换行隔开。像发微信一样，一条一条的短句。\n'
+    +'每条消息独占一行，用换行隔开。\n'
     +'示例：\n'
     +'咋了\n'
     +'他又找你茬？\n'
@@ -1004,18 +1030,19 @@ async function sendMsg(){
     +'\n'
     +'每条不超过20字。必须一行一条。';
 
-  const apiMessages=[],recent=history.slice(-40);
-  for(let i=0;i<recent.length;i++){
-    const h=recent[i];
-    if(i===recent.length-1&&h.role==='self')continue;
-    apiMessages.push({role:h.role==='ex'?'assistant':'user',content:h.content});
+  // Build API messages from history
+  const apiMessages=[];
+  for(let i=0;i<history.length;i++){
+    const h=history[i];
+    const role=h.role==='ex'?'assistant':'user';
+    // Merge consecutive user messages that are part of this batch
+    if(i===history.length-1&&h.role==='self')continue;
+    apiMessages.push({role,content:h.content});
   }
-  apiMessages.push({role:'user',content:text});
 
   try{
     const reply=await callAPI(null,systemPrompt,apiMessages,300);
     if(reply){
-      // Split by newlines: one bubble per line
       const bubbles=reply.split(/\n+/).map(s=>s.trim()).filter(Boolean)
         .flatMap(s=>{if(s.length>25)return s.match(/.{1,20}/g)||[s];return[s]});
       const pace=bubbles.length>=4?1500:bubbles.length>=3?2500:3000;
@@ -1027,27 +1054,6 @@ async function sendMsg(){
     }
   }catch(e){addMsg('ex','(出错: '+e.message+')')}
   finally{isLoading=false}
-}
-
-function splitIntoSentences(text){
-  // Split on Chinese/English sentence-ending punctuation, keeping the punctuation
-  const parts=text.split(/(?<=[。！？；\.!\?;\n])/);
-  const result=[];
-  let buf='';
-  for(const p of parts){
-    buf+=p;
-    if(/[。！？；\.!\?;\n]$/.test(p)||buf.length>50){
-      result.push(buf.trim());buf='';
-    }
-  }
-  if(buf.trim())result.push(buf.trim());
-  return result.length?result:[text];
-}
-
-function addMsg(role,content){
-  history.push({role,content,time:Date.now()});
-  if(currentEx){currentEx.chatHistory=history;updateExChat(currentEx.slug,history)}
-  refreshChat();scrollBottom();
 }
 
 function scrollBottom(){
