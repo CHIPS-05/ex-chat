@@ -969,86 +969,72 @@ function refreshChat(){
   scrollBottom();
 }
 
-// ── Batch send: accumulate messages, reply after user pauses ──
-let _sendTimer=null;
-let _pendingQueue=[];
+// ── Send: accumulate messages, reply after user pauses 3s ──
+let _batchTimer=null;
+let _batchQueue=[];
 
 function sendMsg(){
   if(isLoading)return;
-  if(!currentEx){toast('请先选择一个前任');return}
-  const cfg=getConfig();
-  if(cfg.key===DEMO_MODE){toast('演示模式无法聊天，请先配置 API Key');return}
-  if(!cfg.key){toast('请先在首页配置 API Key');return}
+  var ex=currentEx; if(!ex){toast('请先选择一个前任');return}
+  var cfg=getConfig();
+  if(!cfg.key||cfg.key===DEMO_MODE){toast('请先配置 API Key');return}
 
-  const text=document.getElementById('msgInput').value.trim();
+  var text=document.getElementById('msgInput').value.trim();
   if(!text)return;
   document.getElementById('msgInput').value='';
-  document.getElementById('msgInput').style.height='auto';
 
   addMsg('self',text);
-  _pendingQueue.push(text);
+  _batchQueue.push(text);
 
-  clearTimeout(_sendTimer);
-  _sendTimer=setTimeout(startReply,3000);
+  clearTimeout(_batchTimer);
+  _batchTimer=setTimeout(function(){
+    var msgs=_batchQueue;
+    _batchQueue=[];
+    _doReply(msgs);
+  },3000);
 }
 
-function startReply(){
-  if(!currentEx||isLoading||!_pendingQueue.length)return;
-  const msgs=_pendingQueue;
-  _pendingQueue=[];
+function _doReply(msgs){
   isLoading=true;
-  doReply(msgs).finally(()=>{isLoading=false});
+  (async()=>{
+    try{
+      var ex=currentEx,cfg=getConfig();
+      var combined=msgs.join('\n');
+      var sp=ex.persona
+        +(ex.memory?'\n\n---\n## 共同记忆\n'+ex.memory:'')
+        +'\n\n---\n## 对话规则\n'
+        +'你现在就是'+ex.name+'本人。\n'
+        +'1. 严禁编造。2. 只回对方说的话，不岔开。3. 语气平淡，分手后的距离感。4. 标点随便，别像印刷体。\n'
+        +'5. 条数跟情绪走。\n'
+        +'【格式】每条一行，用换行隔开。每条≤20字。必须一行一条。';
+
+      var apimsg=[];
+      for(var i=0;i<history.length;i++){
+        var h=history[i];
+        if(i===history.length-1&&h.role==='self')continue;
+        apimsg.push({role:h.role==='ex'?'assistant':'user',content:h.content});
+      }
+
+      var reply=await callAPI(null,sp,apimsg,300);
+      if(reply){
+        var bubbles=reply.split(/\n+/).map(function(s){return s.trim()}).filter(Boolean)
+          .flatMap(function(s){if(s.length>25)return s.match(/.{1,20}/g)||[s];return[s]});
+        var pace=bubbles.length>=4?1500:bubbles.length>=3?2500:3000;
+        for(var i=0;i<bubbles.length;i++){
+          var d=Math.min(pace+bubbles[i].length*120+Math.random()*1500,6000);
+          await new Promise(function(r){setTimeout(r,d)});
+          addMsg('ex',bubbles[i]);
+        }
+      }
+    }catch(e){addMsg('ex','(出错: '+String(e).slice(0,100)+')')}
+    isLoading=false;
+  })();
 }
 
 function addMsg(role,content){
   history.push({role,content,time:Date.now()});
-  if(currentEx){currentEx.chatHistory=history;updateExChat(currentEx.slug,history)}
+  try{if(currentEx){currentEx.chatHistory=history;updateExChat(currentEx.slug,history)}}catch(e){}
   refreshChat();scrollBottom();
-}
-
-async function doReply(messages){
-  const cfg=getConfig();
-  const combinedText=messages.join('\n');
-
-  const systemPrompt=currentEx.persona
-    +(currentEx.memory?'\n\n---\n## 共同记忆\n'+currentEx.memory:'')
-    +'\n\n---\n## 对话规则\n'
-    +'你现在就是'+currentEx.name+'本人。\n'
-    +'1. 严禁编造。没在聊天记录和记忆里出现过的人事物，你一概不知道。\n'
-    +'2. 只回对方说的话，不岔开话题。\n'
-    +'3. 语气平淡，分手后的距离感。\n'
-    +'4. 标点随便。真人聊天基本不打句号，逗号随缘，空格当停顿。别写得像印刷体。\n'
-    +'5. 条数跟情绪走：平淡→1-2条 / 急了→3-5条 / 懒得理→1条。\n'
-    +'\n'
-    +'【发送格式——必须遵守！！！】\n'
-    +'每条消息独占一行，用换行隔开。\n'
-    +'示例：\n'
-    +'咋了\n'
-    +'他又找你茬？\n'
-    +'应该不是你的问题吧\n'
-    +'\n'
-    +'每条不超过20字。必须一行一条。';
-
-  const apiMessages=[];
-  for(let i=0;i<history.length;i++){
-    const h=history[i];
-    if(i===history.length-1&&h.role==='self')continue;
-    apiMessages.push({role:h.role==='ex'?'assistant':'user',content:h.content});
-  }
-
-  try{
-    const reply=await callAPI(null,systemPrompt,apiMessages,300);
-    if(reply){
-      const bubbles=reply.split(/\n+/).map(s=>s.trim()).filter(Boolean)
-        .flatMap(s=>{if(s.length>25)return s.match(/.{1,20}/g)||[s];return[s]});
-      const pace=bubbles.length>=4?1500:bubbles.length>=3?2500:3000;
-      for(let i=0;i<bubbles.length;i++){
-        const delay=Math.min(pace+bubbles[i].length*120+Math.random()*1500,6000);
-        await new Promise(r=>setTimeout(r,delay));
-        addMsg('ex',bubbles[i]);
-      }
-    }
-  }catch(e){addMsg('ex','(出错: '+e.message+')');}
 }
 
 function scrollBottom(){
