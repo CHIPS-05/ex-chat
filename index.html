@@ -264,6 +264,8 @@
     <h3>🎯 关系记忆（可选）</h3>
     <label>你们之间难忘的事、共同经历</label>
     <textarea id="cfMemory" rows="3" placeholder="如：一起在厦门看过日出 / ta 最讨厌吃香菜 / 每年生日都会收到 ta 的手写信..."></textarea>
+    <label>关键事件（对你们关系影响最大的几件事）</label>
+    <textarea id="cfKeyEvents" rows="3" placeholder="如：2023年春节ta突然说分手 / ta生日那天我没去ta很失望 / ta拿到offer那天第一个告诉了我...&#10;这些事情决定了ta对你的态度和你们之间后来的走向"></textarea>
     <label style="margin-top:8px">或上传恋爱经过文档</label>
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
       <button class="upload-btn" onclick="document.getElementById('fileStory').click()">📎 上传文档</button>
@@ -523,7 +525,7 @@ function filterPartnerMsgs(msgs,exName){
 //  Create Ex
 // ============================================================
 function resetCreateForm(){
-  ['cfName','cfNote','cfAge','cfBirthday','cfMbti','cfJob','cfDesc','cfTags','cfHobbies','cfLikes','cfDislikes','cfPhrases','cfChats','cfMemory'].forEach(id=>document.getElementById(id).value='');
+  ['cfName','cfNote','cfAge','cfBirthday','cfMbti','cfJob','cfDesc','cfTags','cfHobbies','cfLikes','cfDislikes','cfPhrases','cfChats','cfMemory','cfKeyEvents'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('cfGender').value='';
   ['previewExAvatar','previewMyAvatar','previewBg'].forEach(id=>document.getElementById(id).innerHTML='<span class="placeholder">'+(id==='previewExAvatar'?'🙂':id==='previewMyAvatar'?'🧑':'🖼️')+'</span>');
   ['infoExAvatar','infoMyAvatar','infoBg','chatLogStatus','storyStatus'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=id.startsWith('info')?'未选择':''});
@@ -555,6 +557,7 @@ async function createEx(){
   const likes=document.getElementById('cfLikes').value.trim();
   const dislikes=document.getElementById('cfDislikes').value.trim();
   const phrases=document.getElementById('cfPhrases').value.trim();
+  const keyEvents=document.getElementById('cfKeyEvents').value.trim();
 
   // Merge chat content: uploaded file + pasted text
   let chatContent=document.getElementById('cfChats').value.trim();
@@ -573,6 +576,9 @@ async function createEx(){
   if(window._storyContent){
     memory=memory?memory+'\n\n'+window._storyContent:window._storyContent;
   }
+  if(keyEvents){
+    memory=memory?memory+'\n\n【关键事件】\n'+keyEvents:keyEvents;
+  }
 
   const btn=document.getElementById('createBtn');
   const prog=document.getElementById('progress');
@@ -580,71 +586,66 @@ async function createEx(){
   prog.classList.add('show');
   prog.innerHTML='正在分析你提供的信息...<br>这可能需要 10-30 秒';
 
-  const profileInfo=[
-    gender&&'性别: '+gender,age&&'年龄: '+age,birthday&&'生日: '+birthday,
-    mbti&&'MBTI/星座: '+mbti,job&&'职业: '+job,
-    hobbies&&'爱好: '+hobbies,likes&&'喜欢: '+likes,dislikes&&'讨厌: '+dislikes
-  ].filter(Boolean).join('\n');
+  const profileInfo_=[
+    gender&&'性别'+gender,age&&'年龄'+age,birthday&&'生日'+birthday,
+    mbti&&'MBTI/星座'+mbti,job&&'职业'+job,
+    tags&&'性格标签'+tags,
+    hobbies&&'爱好'+hobbies,likes&&'喜欢'+likes,dislikes&&'讨厌'+dislikes
+  ].filter(Boolean).join('；');
 
-  const buildPrompt=`你是一位人物分析专家。请根据以下信息，生成一份详细的人物性格档案。
+  const buildPrompt=`请根据以下【真实信息】，生成一份人物性格档案。只基于提供的信息，不要编造任何不存在的内容。
 
-【代号】${name}
-${note?'【备注】'+note:''}
-【基本信息】
-${profileInfo||'未提供详细个人信息'}
-【关系概况】${desc||'未知'}
-【性格标签】${tags||'未知'}
-【口头禅/惯用语】${phrases||'未提供'}
-【聊天记录】
-${chatContent||'未提供'}
-【共同记忆】${memory||'未提供'}
+【真实信息】
+- 代号：${name}${note?'（备注: '+note+')':''}
+${profileInfo_?'- '+profileInfo_:''}
+${desc?'- 关系概况: '+desc:''}
+${phrases?'- 口头禅/惯用语: '+phrases:''}
+${chatContent?'【聊天记录】\n'+chatContent.slice(0,3000):'（未提供聊天记录）'}
+${memory?'【共同记忆/关键事件】\n'+memory.slice(0,2000):'（未提供记忆）'}
 
-请生成以下格式的性格档案（Markdown），严格按照 5 个 Layer：
+请在以上信息的范围内，生成以下 persona（Markdown格式）：
 
 ## Layer 0：硬规则
-1. 你是${name}，不是 AI。用ta的方式说话，用ta的逻辑思考。
-2. 严禁编造：聊天记录和记忆里没出现的人、事、经历，你一概不知道。不知道就说不知道，或者敷衍过去。
+1. 你是${name}，不是AI。用ta的方式说话和思考。
+2. 严禁编造！！！上面【真实信息】里没出现过的事情，你一概不知道。被问到了就说不知道、忘了、或者敷衍过去。不要自己脑补任何经历、人物、事件。
 3. 不说${name}在现实中绝不可能说的话。
-4. 不突然变得完美、温柔、无条件包容（除非ta本来就这样）。
-5. 不主动说"我爱你""想你了"（除非原材料大量出现）。
-6. 保持ta的"棱角"：正是这些不完美让ta真实。
+4. 不突然变得完美、温柔、无条件包容（除非信息显示ta就是这样的人）。
+5. 不主动说深情的话（除非聊天记录大量出现）。
+6. 保持ta的棱角——不完美才是真实。
 
 ## Layer 1：身份
-- 名字/代号：${name}${note?'，备注: '+note:''}
-- ${gender?'性别: '+gender+'，':''}${age?'年龄: '+age+'，':''}${birthday?'生日: '+birthday+'，':''}${job?'身份: '+job:'身份: （推断）'}
-- MBTI猜测 / 星座：${mbti||'（根据说话风格推断）'}
-- 与用户的关系：前任${desc?'（'+desc+'）':''}
+- 代号、性别、年龄、生日、职业、MBTI都按上面信息填
+- ${mbti?'MBTI性格特征要体现在说话方式里（比如INFP偏内向感性，ESTJ偏直接务实）':''}
+- 和用户的关系：前任
 
 ## Layer 2：说话风格
-- 口头禅：（必须由聊天记录支撑）
-- 语气词偏好：
-- 标点风格：
-- emoji习惯：
-- 消息格式（短句连发/长段落）：
-- 称呼用户的方式：
-- 3个典型对话示例（贴近真实微信聊天感）：
+${chatContent?'——必须从聊天记录中提取，不要自己编——':''}
+- 口头禅（只列记录里真正出现的）${phrases?'参考：'+phrases:''}
+- 语气词、标点、emoji习惯（从记录中归纳）
+- 消息长度和节奏
+- ta怎么称呼用户
+- 2个从记录中摘的真实对话片段
 
 ## Layer 3：情感模式
-- 依恋类型推断：
-- 表达关心的方式：
-- 生气时的表现：
-- 难过时的表现：
-- 开心时的表现：
-- 雷区/敏感话题：
+${memory?'——从记忆/关键事件推断ta的情感模式——':''}
+- 依恋风格（from 记忆中的事件）
+- 在乎一个人的方式${likes?'（ta喜欢'+likes+'）':''}
+- 生气的样子${dislikes?'（ta讨厌'+dislikes+'）':''}
+- 难过、开心时什么样
+- 雷区${memory?'（从关键事件中提取）':''}
+- ${hobbies?'ta的爱好是'+hobbies+'，这会影响ta的日常话题':''}
 
 ## Layer 4：关系行为
-- 在关系中的角色：
-- 争吵模式：
-- 联系频率/主动程度：
-- 边界和底线：
+${memory?'——从关键事件推断——':''}
+- 关系中ta扮演的角色
+- 争吵模式（有具体事件支撑）
+- 主动程度、回复速度
+- 不能碰的底线
 
-请确保：
-1. 所有行为描述基于提供的信息推断，不凭空编造
-2. 信息不足时标注「基于有限信息推断」
-3. 口头禅只在特定语境中出现，不是每句话都用
-4. 语气要平淡自然——现在真人聊天普遍比较"淡淡的"，情感含蓄在细节里
-5. 对话示例要真实自然，有微信聊天的感觉，不要过于热情或戏剧化
-6. 直接输出 persona，不要多余解释`;
+【最终指令】
+- 信息不足的维度标注「信息不足」
+- 每条推断都要有依据
+- 直接输出 persona，不要解释`;
 
   try{
     prog.innerHTML='正在调用 AI 分析...';
