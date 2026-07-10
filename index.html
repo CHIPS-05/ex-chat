@@ -132,6 +132,7 @@
       <input type="text" id="apiUrlInput" placeholder="API Base URL（可选）" value="https://api.deepseek.com/anthropic">
       <input type="text" id="modelInput" placeholder="Model（可选）" value="deepseek-v4-pro">
       <button class="btn btn-primary" onclick="saveConfig()">保存配置</button>
+      <button class="btn btn-primary" id="btnCreateFirst" onclick="showCreate()" style="margin-top:6px;display:none">👉 创建前任 AI</button>
       <button class="btn btn-secondary" onclick="quickStart()" style="margin-top:6px">跳过，用演示模式（仅预览）</button>
     </div>
     <div class="note">
@@ -231,6 +232,7 @@ const CONFIG_KEY = 'exchat_config';   // localStorage key for API config
 document.addEventListener('DOMContentLoaded', () => {
   loadConfig();
   renderLandingExes();
+  checkShowCreateBtn();
   document.getElementById('msgInput').addEventListener('keydown', e => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); }
   });
@@ -267,6 +269,7 @@ function saveConfig() {
   localStorage.setItem(CONFIG_KEY, JSON.stringify(cfg));
   toast('配置已保存 ✓', 'info');
   renderLandingExes();
+  checkShowCreateBtn();
   // auto-open chat if exes exist
   const exes = loadExes();
   if (exes.length > 0) {
@@ -274,6 +277,19 @@ function saveConfig() {
     showPage('page-chat');
   }
 }
+
+function checkShowCreateBtn() {
+  const cfg = getConfig();
+  const exes = loadExes();
+  const hasKey = cfg.key && cfg.key !== DEMO_MODE;
+  const btn = document.getElementById('btnCreateFirst');
+  if (hasKey && exes.length === 0) {
+    btn.style.display = 'block';
+  } else {
+    btn.style.display = 'none';
+  }
+}
+
 
 function quickStart() {
   const cfg = { key: DEMO_MODE, url: '', model: '' };
@@ -328,6 +344,7 @@ function showPage(id) {
 function goLanding() {
   showPage('page-landing');
   renderLandingExes();
+  checkShowCreateBtn();
 }
 
 function showCreate(editSlug) {
@@ -692,6 +709,7 @@ function deleteEx(slug) {
   }
   showExPicker();
   renderLandingExes();
+  checkShowCreateBtn();
 }
 
 // ============================================================
