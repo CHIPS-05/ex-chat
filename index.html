@@ -11,18 +11,22 @@
     --green: #07C160; --danger: #E04840; --border: #E0E0E0;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
+  html, body {
+    height: 100%; width: 100%; overflow: hidden; position: fixed;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-overflow-scrolling: touch;
+  }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
-    background: var(--bg); height: 100dvh; display: flex; flex-direction: column; overflow: hidden;
-    -webkit-tap-highlight-color: transparent;
+    background: var(--bg); display: flex; flex-direction: column;
   }
 
   /* === Pages === */
-  .page { display: none; flex-direction: column; height: 100dvh; min-height: 0; }
+  .page { display: none; flex-direction: column; height: 100%; width: 100%; overflow: hidden; }
   .page.active { display: flex; }
 
   /* === Landing Page === */
-  .landing { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); color: #fff; align-items: center; justify-content: center; text-align: center; padding: 24px; }
+  .landing { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); color: #fff; text-align: center; padding: 30px 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; }
   .landing h1 { font-size: 42px; margin-bottom: 8px; }
   .landing .sub { font-size: 15px; opacity: 0.65; margin-bottom: 32px; line-height: 1.6; }
   .landing .card { background: rgba(255,255,255,0.08); border-radius: 16px; padding: 24px; max-width: 380px; width: 100%; backdrop-filter: blur(10px); }
@@ -170,7 +174,7 @@
 </div>
 
 <!-- ========== PAGE: Create Ex ========== -->
-<div class="page" id="page-create">
+<div class="page create-page" id="page-create">
   <div class="createtop" id="createTop">创建前任 AI</div>
   <div class="create-form">
     <h3>📝 基本信息</h3>
