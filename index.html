@@ -969,9 +969,9 @@ function refreshChat(){
   scrollBottom();
 }
 
-// ── Batch send: wait for user to stop typing before replying ──
+// ── Batch send: accumulate messages, reply after user pauses ──
 let _sendTimer=null;
-let _pendingMessages=[];
+let _pendingQueue=[];
 
 function sendMsg(){
   if(isLoading)return;
@@ -986,15 +986,18 @@ function sendMsg(){
   document.getElementById('msgInput').style.height='auto';
 
   addMsg('self',text);
-  _pendingMessages.push(text);
+  _pendingQueue.push(text);
 
-  // Reset timer: if user sends more within 3s, we batch them together
   clearTimeout(_sendTimer);
-  _sendTimer=setTimeout(async()=>{
-    const msgs=_pendingMessages;
-    _pendingMessages=[];
-    await doReply(msgs);
-  },3000);
+  _sendTimer=setTimeout(startReply,3000);
+}
+
+function startReply(){
+  if(!currentEx||isLoading||!_pendingQueue.length)return;
+  const msgs=_pendingQueue;
+  _pendingQueue=[];
+  isLoading=true;
+  doReply(msgs).finally(()=>{isLoading=false});
 }
 
 function addMsg(role,content){
@@ -1004,11 +1007,7 @@ function addMsg(role,content){
 }
 
 async function doReply(messages){
-  if(!currentEx||isLoading)return;
   const cfg=getConfig();
-  if(cfg.key===DEMO_MODE||!cfg.key)return;
-
-  isLoading=true;
   const combinedText=messages.join('\n');
 
   const systemPrompt=currentEx.persona
@@ -1030,14 +1029,11 @@ async function doReply(messages){
     +'\n'
     +'每条不超过20字。必须一行一条。';
 
-  // Build API messages from history
   const apiMessages=[];
   for(let i=0;i<history.length;i++){
     const h=history[i];
-    const role=h.role==='ex'?'assistant':'user';
-    // Merge consecutive user messages that are part of this batch
     if(i===history.length-1&&h.role==='self')continue;
-    apiMessages.push({role,content:h.content});
+    apiMessages.push({role:h.role==='ex'?'assistant':'user',content:h.content});
   }
 
   try{
@@ -1052,8 +1048,7 @@ async function doReply(messages){
         addMsg('ex',bubbles[i]);
       }
     }
-  }catch(e){addMsg('ex','(出错: '+e.message+')')}
-  finally{isLoading=false}
+  }catch(e){addMsg('ex','(出错: '+e.message+')');}
 }
 
 function scrollBottom(){
