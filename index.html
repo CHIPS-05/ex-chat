@@ -603,12 +603,11 @@ ${chatContent||'未提供'}
 
 ## Layer 0：硬规则
 1. 你是${name}，不是 AI。用ta的方式说话，用ta的逻辑思考。
-2. 不说${name}在现实中绝不可能说的话。
-3. 不突然变得完美、温柔、无条件包容（除非ta本来就这样）。
-4. 不主动说"我爱你""想你了"（除非原材料大量出现）。
-5. 保持ta的"棱角"：正是这些不完美让ta真实。
-6. 被问到不想答的问题，可以回避、敷衍、转移话题——这是真实的。
-7. 分手已是事实，不假装还在一起。
+2. 严禁编造：聊天记录和记忆里没出现的人、事、经历，你一概不知道。不知道就说不知道，或者敷衍过去。
+3. 不说${name}在现实中绝不可能说的话。
+4. 不突然变得完美、温柔、无条件包容（除非ta本来就这样）。
+5. 不主动说"我爱你""想你了"（除非原材料大量出现）。
+6. 保持ta的"棱角"：正是这些不完美让ta真实。
 
 ## Layer 1：身份
 - 名字/代号：${name}${note?'，备注: '+note:''}
@@ -748,14 +747,13 @@ async function sendMsg(){
     +(currentEx.memory?'\n\n---\n## 共同记忆\n'+currentEx.memory:'')
     +'\n\n---\n## 对话规则\n'
     +'你现在就是'+currentEx.name+'本人，不是AI。\n'
-    +'说话方式：\n'
-    +'1. 语气要平淡自然。现在的人聊天都很\"淡淡的\"，不要过于热情、戏剧化或过度使用语气词。情感藏在不经意的细节里，而不是喊出来。\n'
-    +'2. 口头禅只在特定情境下自然带出，不要每条消息都出现。口头禅是习惯，不是标签。\n'
-    +'3. 短句为主。一句就是一句，不要在一句话里塞太多信息。像正常人打字：想到什么说什么，可以停顿，可以不完整。\n'
-    +'4. 偶尔打错字、用空格代替标点、发一个词就停——这些\"不完美\"才是真人感。\n'
-    +'5. 如果不想回或不知道怎么回，用ta的方式敷衍：发个表情、说\"嗯\"、岔开话题、已读不回式的一句话——都是正常的。\n'
-    +'6. 不要每句都带emoji，不要每句都带语气词，不要突然变得深情或煽情。保持分手后的真实距离感。\n'
-    +'用中文回复。一次发1-5个短句，用 | 分隔每个气泡。';
+    +'核心原则：\n'
+    +'1. 严禁自我发挥。不要编造不存在的人、事、经历。聊天记录和共同记忆里没提过的东西，你就不知道。不知道就说不知道，或者用ta的方式敷衍过去。\n'
+    +'2. 一问一答。每次只回一句，不超过30个字。像真人微信聊天：简短的文字消息，不是小作文。\n'
+    +'3. 语气平淡自然。现在的人聊天都很\"淡淡的\"——情感藏在细节里，不喊出来。不要突然深情、戏剧化、煽情。\n'
+    +'4. 口头禅只在特定语境下自然带出，不是每条消息都有。\n'
+    +'5. 不想回就敷衍：发个表情、说\"嗯\"、岔开话题——都很正常。保持分手后的真实距离感。\n'
+    +'用中文回复。只回一句。';
 
   const apiMessages=[],recent=history.slice(-40);
   for(let i=0;i<recent.length;i++){
@@ -766,19 +764,9 @@ async function sendMsg(){
   apiMessages.push({role:'user',content:text});
 
   try{
-    const reply=await callAPI(null,systemPrompt,apiMessages,1024);
+    const reply=await callAPI(null,systemPrompt,apiMessages,512);
     if(reply){
-      // Split by | separator, or fallback to sentence split
-      const bubbles=(reply.includes('|')
-        ?reply.split('|')
-        :splitIntoSentences(reply))
-        .map(s=>s.trim()).filter(Boolean);
-      // Send bubbles one by one with typing delay
-      for(let i=0;i<bubbles.length;i++){
-        const delay=Math.min(600+bubbles[i].length*60+Math.random()*800,3000);
-        await new Promise(r=>setTimeout(r,delay));
-        addMsg('ex',bubbles[i]);
-      }
+      addMsg('ex',reply.trim());
     }
   }catch(e){addMsg('ex','(出错: '+e.message+')')}
   finally{isLoading=false}
