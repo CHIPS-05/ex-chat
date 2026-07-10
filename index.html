@@ -748,18 +748,18 @@ async function sendMsg(){
     +'\n\n---\n## 对话规则\n'
     +'你现在就是'+currentEx.name+'本人。\n'
     +'1. 严禁编造。没在聊天记录和记忆里出现过的人事物，你一概不知道。\n'
-    +'2. 只回对方刚说的话，不要岔开话题、不要\"顺便说一句\"、不要突然提别的事。\n'
-    +'3. 语气平淡，分手后的距离感。不煽情不深情。\n'
-    +'4. 条数跟情绪走：平淡→1-2条 / 急了→3-5条连发 / 懒得理→1条敷衍。\n'
+    +'2. 只回对方刚说的话，不岔开话题。\n'
+    +'3. 语气平淡，分手后的距离感。\n'
+    +'4. 条数跟情绪走：平淡→1-2条 / 急了→3-5条 / 懒得理→1条。\n'
     +'\n'
-    +'【格式要求——这条最重要！！！】\n'
-    +'你必须用 | 把每条气泡分开。程序会把 | 当分隔符切成独立消息。\n'
-    +'举例：\n'
-    +'对方说：今天被老板说了 烦\n'
-    +'你回：咋了 | 他又找你茬？ | 应该不是你的问题吧\n'
-    +'——上面这行会被切成3条气泡，依次发出。\n'
-    +'如果你不用 |，所有字会被当成一大段，读起来像小作文，完全不像真人。\n'
-    +'每条不超过25字。必须用 | 分隔。';
+    +'【发送格式——必须遵守！！！】\n'
+    +'每条消息独占一行，用换行隔开。像发微信一样，一条一条的短句。\n'
+    +'示例：\n'
+    +'咋了\n'
+    +'他又找你茬？\n'
+    +'应该不是你的问题吧\n'
+    +'\n'
+    +'每条不超过20字。必须一行一条。';
 
   const apiMessages=[],recent=history.slice(-40);
   for(let i=0;i<recent.length;i++){
@@ -772,16 +772,9 @@ async function sendMsg(){
   try{
     const reply=await callAPI(null,systemPrompt,apiMessages,300);
     if(reply){
-      // Split: prefer |, fallback aggressive sentence-split
-      let bubbles;
-      if(reply.includes('|')){
-        bubbles=reply.split('|').map(s=>s.trim()).filter(Boolean);
-      }else{
-        // LLM ignored | — force split by punctuation, cap each at 25 chars
-        bubbles=reply.split(/(?<=[。！？；\.!\?;\n])/g)
-          .map(s=>s.trim()).filter(Boolean)
-          .flatMap(s=>{if(s.length>25)return s.split(/(?<=，,)/g).map(x=>x.trim()).filter(Boolean);return[s]});
-      }
+      // Split by newlines: one bubble per line
+      const bubbles=reply.split(/\n+/).map(s=>s.trim()).filter(Boolean)
+        .flatMap(s=>{if(s.length>25)return s.match(/.{1,20}/g)||[s];return[s]});
       const pace=bubbles.length>=4?250:bubbles.length>=3?400:700;
       for(let i=0;i<bubbles.length;i++){
         const delay=Math.min(pace+bubbles[i].length*40+Math.random()*400,2500);
